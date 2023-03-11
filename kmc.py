@@ -15,20 +15,24 @@ class MeanInit(Enum):
 
 class CandidateCluster:
     def __init__(self, cluster_class, sample_count):
-        self.cluster_class = cluster_class,
+        self.cluster_class = cluster_class
         self.sample_count = sample_count
 
 
 class ClusterAnalysis:
-    def __init__(self, label, cluster_class, correct, total):
+    def __init__(self, label, candidate_clusters, total):
         self.label = label
-        self.cluster = cluster_class
-        self.correct = correct
+        self.candidate_clusters = sorted(candidate_clusters, key=lambda candidate: candidate.sample_count, reverse=True)
         self.total = total
 
     def __str__(self):
-        confidence = round(self.correct/self.total * 100, 4)
-        return f'{self.label} -> {self.cluster} ({self.correct}/{self.total} | {confidence}%)'
+        most_likely_cluster = self.most_likely_cluster()
+        sample_count = most_likely_cluster.sample_count
+        confidence = round(sample_count/self.total * 100, 4)
+        return f'{self.label} -> {most_likely_cluster.cluster_class} ({sample_count}/{self.total} | {confidence}%)'
+
+    def most_likely_cluster(self) -> CandidateCluster:
+        return self.candidate_clusters[0]
 
 
 def cluster(task: Task, k: int, init: MeanInit, trials: int):
@@ -53,13 +57,8 @@ def analyze(clusters: KMeans, sample_set: SampleSet):
         samples_of_class = sample_set.samples[class_mask]
         predicted_clusters = clusters.predict(samples_of_class)
         occurrences_of_clusters = np.bincount(predicted_clusters)
-        likely_cluster_class = np.argmax(occurrences_of_clusters)
-        analysis = ClusterAnalysis(label=clazz, cluster_class=likely_cluster_class,
-                                   correct=occurrences_of_clusters[likely_cluster_class],
-                                   total=occurrences_of_clusters.sum())
+        candidate_clusters = [CandidateCluster(tup[0], tup[1]) for tup in enumerate(occurrences_of_clusters)]
+        analysis = ClusterAnalysis(label=clazz, candidate_clusters=candidate_clusters, total=occurrences_of_clusters.sum())
         class_cluster_map[clazz] = analysis
-
-        if likely_cluster_class in class_cluster_map:
-            print('Two classes mapped to the same cluster!')
 
     return class_cluster_map
