@@ -1,3 +1,4 @@
+import matplotlib.ticker
 from sklearn.cluster import KMeans
 from sklearn import metrics
 import matplotlib.pyplot as plt
@@ -43,7 +44,7 @@ class ClusterAnalysis:
 
 def create_graph(task: Task):
     sample_set = data_utils.get_all_samples(task)
-    (_, clustering, _), all_average_scores = find_k(sample_set, MeanInit.KM_PP, trials_per_k=2)
+    (_, clustering, _), all_average_scores = find_k(sample_set, MeanInit.KM_PP, trials_per_k=5)
     graph_scores(sample_set, clustering, all_average_scores)
 
 
@@ -91,7 +92,7 @@ def graph_scores(sample_set: SampleSet, clustering: KMeans, average_scores_for_a
     ax2.set_xlabel("k (# of clusters)")
     ax2.set_ylabel("Silhouette coefficient values")
     clusters = np.arange(2, len(average_scores_for_all_ks) + 2)
-    ax2.plot(clusters, average_scores_for_all_ks, marker="o", drawstyle="steps-post", linestyle='solid')
+    ax2.plot(clusters, average_scores_for_all_ks, marker="o", drawstyle="default", linestyle='solid')
 
     plt.show()
 
@@ -103,7 +104,7 @@ def print_scores_to_csv(filename: str, scores: np.ndarray):
 def find_k(sample_set: SampleSet, init: MeanInit, trials_per_k: int):
     score_cluster_tuples = []
     all_average_scores = []
-    for k in range(2, 4):
+    for k in range(2, 201):
         print(f'Creating cluster for {k}...')
         clustering = create_clustering(sample_set, k, init, trials_per_k)
         average_silhouette_score = metrics.silhouette_score(sample_set.samples, clustering.labels_)
