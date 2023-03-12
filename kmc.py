@@ -40,22 +40,32 @@ class ClusterAnalysis:
         return self.candidate_clusters[0]
 
 
+def graph_scores(filename: str):
+    pass
+
+
 def print_scores_to_csv(filename: str, scores: np.ndarray):
     np.savetxt('outputs/'+filename, scores, delimiter=',', fmt="%1.6f")
 
 
-def find_k(task: Task, init: MeanInit, scores_per_k: int):
+def find_k(task: Task, init: MeanInit, trials_per_k: int):
     sample_set = data_utils.get_all_samples(task)
-    k_scores = []
-    for k in range(2, 3):
-        scores = []
-        for trial in range(scores_per_k):
-            clustering, _ = create_clustering(sample_set, k, init, 1)
-            score = metrics.silhouette_score(sample_set.samples, clustering.labels_)
-            scores.append(score)
-        k_scores.append(scores)
-    k_scores = np.array(k_scores, dtype=float)
-    return np.argmax(k_scores.mean(axis=1)) + 2, k_scores
+    score_cluster_tuples = []
+    for k in range(2, 4):
+        print(f'Creating cluster for {k}...')
+        clustering = create_clustering(sample_set, k, init, trials_per_k)
+        average_silhouette_score = metrics.silhouette_score(sample_set.samples, clustering.labels_)
+        score_cluster_tuples.append((k, clustering, average_silhouette_score))
+        print(f'\tscore: {average_silhouette_score}')
+
+    best = sorted(score_cluster_tuples, key=lambda tup: tup[2], reverse=True)[0]
+    best_k = best[0]
+    clustering = best[1]
+    avg_score = best[2]
+
+    print(f'Best k is {best_k}. Calculating individual scores...')
+    individual_scores = metrics.silhouette_samples(sample_set.samples, clustering.labels_)
+    return best_k, clustering, avg_score, individual_scores
 
 
 def create_clustering(sample_set: SampleSet, k: int, init: MeanInit, trials: int):
@@ -66,7 +76,7 @@ def create_clustering(sample_set: SampleSet, k: int, init: MeanInit, trials: int
                       random_state=None)
     clusters.fit(sample_set.samples)
 
-    return clusters, analyze(clusters, sample_set)
+    return clusters #analyze(clusters, sample_set)
 
 
 def analyze(clusters: KMeans, sample_set: SampleSet):
