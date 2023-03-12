@@ -14,7 +14,7 @@ import kmc
 from data_utils import Task
 import data_utils
 
-k, clustering, avg_score, score = kmc.find_k(Task.LETTER_RECOGNITION, kmc.MeanInit.KM_PP, trials_per_k=2)
+(k, clustering, avg_score, score), all_avg_scores = kmc.find_k(Task.LETTER_RECOGNITION, kmc.MeanInit.KM_PP, trials_per_k=2)
 
 letter_sample_set = data_utils.get_all_samples(Task.LETTER_RECOGNITION)
 letter_clusters, letter_analysis = kmc.cluster(letter_sample_set, k=26, init=kmc.MeanInit.KM_PP, trials=5)
