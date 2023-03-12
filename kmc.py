@@ -1,8 +1,12 @@
 from sklearn.cluster import KMeans
 from sklearn import metrics
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import numpy as np
+
 from data_utils import Task, SampleSet
 import data_utils
+
 from enum import Enum
 
 ### Docs used:
@@ -36,10 +40,14 @@ class ClusterAnalysis:
         return self.candidate_clusters[0]
 
 
+def print_scores_to_csv(filename: str, scores: np.ndarray):
+    np.savetxt('outputs/'+filename, scores, delimiter=',', fmt="%1.6f")
+
+
 def find_k(task: Task, init: MeanInit, scores_per_k: int):
     sample_set = data_utils.get_all_samples(task)
     k_scores = []
-    for k in range(2, 10):
+    for k in range(2, 3):
         scores = []
         for trial in range(scores_per_k):
             clustering, _ = create_clustering(sample_set, k, init, 1)
@@ -74,3 +82,4 @@ def analyze(clusters: KMeans, sample_set: SampleSet):
         class_cluster_map[clazz] = analysis
 
     return class_cluster_map
+
