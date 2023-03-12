@@ -1,4 +1,5 @@
 from sklearn.cluster import KMeans
+from sklearn import metrics
 import numpy as np
 from data_utils import Task, SampleSet
 import data_utils
@@ -35,15 +36,26 @@ class ClusterAnalysis:
         return self.candidate_clusters[0]
 
 
-def cluster(task: Task, k: int, init: MeanInit, trials: int):
+def find_k(task: Task, init: MeanInit, scores_per_k: int):
     sample_set = data_utils.get_all_samples(task)
+    k_scores = []
+    for k in range(2, 10):
+        scores = []
+        for trial in range(scores_per_k):
+            clustering, _ = create_clustering(sample_set, k, init, 1)
+            score = metrics.silhouette_score(sample_set.samples, clustering.labels_)
+            scores.append(score)
+        k_scores.append(scores)
+    k_scores = np.array(k_scores, dtype=float)
+    return np.argmax(k_scores.mean(axis=1)) + 2, k_scores
 
+
+def create_clustering(sample_set: SampleSet, k: int, init: MeanInit, trials: int):
     clusters = KMeans(n_clusters=k,
                       init=init.value,
                       n_init=trials,
                       algorithm='lloyd',
                       random_state=None)
-    clusters.feature_names_in_ = task.value.features
     clusters.fit(sample_set.samples)
 
     return clusters, analyze(clusters, sample_set)

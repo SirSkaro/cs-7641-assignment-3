@@ -1,8 +1,23 @@
+#Part 1:
+Metrics to explore:
+- inter- and intra-cluster distances
+- silloette score
+Think about the density/separation of clusters
+
+#Part 2:
+Pair-wise plots
+
+
 ------------------------ K-Means Clustering --------------------------
 import numpy as np
 import kmc
 from data_utils import Task
 import data_utils
 
-letter_clusters, letter_analysis = kmc.cluster(task=Task.LETTER_RECOGNITION, k=26, init=kmc.MeanInit.KM_PP, trials=5)
-scribe_clusters, scribe_analysis = kmc.cluster(task=Task.SCRIBE_RECOGNITION, k=26, init=kmc.MeanInit.KM_PP, trials=5)
+k, scores = kmc.find_k(Task.LETTER_RECOGNITION, kmc.MeanInit.KM_PP, scores_per_k=2)
+
+letter_sample_set = data_utils.get_all_samples(Task.LETTER_RECOGNITION)
+letter_clusters, letter_analysis = kmc.cluster(letter_sample_set, k=26, init=kmc.MeanInit.KM_PP, trials=5)
+
+scribe_sample_set = data_utils.get_all_samples(Task.SCRIBE_RECOGNITION)
+scribe_clusters, scribe_analysis = kmc.cluster(scribe_sample_set, k=13, init=kmc.MeanInit.KM_PP, trials=5)
