@@ -21,3 +21,15 @@ letter_clusters, letter_analysis = kmc.cluster(letter_sample_set, k=26, init=kmc
 
 scribe_sample_set = data_utils.get_all_samples(Task.SCRIBE_RECOGNITION)
 scribe_clusters, scribe_analysis = kmc.cluster(scribe_sample_set, k=13, init=kmc.MeanInit.KM_PP, trials=5)
+
+"""
+# silloette scores:
+# letter: 
+	200; 0.19084691036698107
+	176: 0.1931728701901657
+	
+# scribe:
+	2: 0.9905801808292309
+	3: 0.5884568207764931
+	4: 0.1727682678671664
+"""

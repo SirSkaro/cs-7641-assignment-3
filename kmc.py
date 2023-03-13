@@ -45,11 +45,11 @@ class ClusterAnalysis:
 def create_graph(task: Task):
     sample_set = data_utils.get_all_samples(task)
     (_, clustering, _), all_average_scores = find_k(sample_set, MeanInit.KM_PP, trials_per_k=5)
-    graph_scores(sample_set, clustering, all_average_scores)
+    graph_scores(task, sample_set, clustering, all_average_scores)
 
 
 # Logic largely borrowed from docs listed above
-def graph_scores(sample_set: SampleSet, clustering: KMeans, average_scores_for_all_ks):
+def graph_scores(task: Task, sample_set: SampleSet, clustering: KMeans, average_scores_for_all_ks):
     fig, (ax1, ax2) = plt.subplots(1, 2)
     ax1.set_xlim([-1, 1])   # The silhouette coefficient can range from -1, 1 but in this example all
     ax1.set_ylim([0, len(sample_set.samples) + (clustering.n_clusters + 1) * 10])  # insert blank space between silhouette
