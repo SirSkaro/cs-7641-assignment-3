@@ -21,7 +21,7 @@ class MeanInit(Enum):
 
 
 def create_graph(task: Task):
-    components_to_try = np.arange(2, 10002, 1000)
+    components_to_try = np.arange(2, 103, 10)
     sample_set = data_utils.get_all_samples(task)
     (best_component, clustering, score), all_scores = find_best_cluster(sample_set, MeanInit.KM_PP,
                                                                         trials_per_k=1,
@@ -51,7 +51,7 @@ def find_best_cluster(sample_set: SampleSet, init: MeanInit, trials_per_k: int, 
         all_scores.append(bic)
         print(f'\tscore: {bic}')
 
-    best = sorted(score_cluster_tuples, key=lambda tup: tup[2], reverse=True)[0]
+    best = sorted(score_cluster_tuples, key=lambda tup: tup[2])[0]
     best_k = best[0]
     clustering = best[1]
     score = best[2]
@@ -65,7 +65,7 @@ def create_clustering(sample_set: SampleSet, k: int, init: MeanInit, trials: int
                                covariance_type='full',
                                tol=1e-3,
                                n_init=trials,
-                               max_iter=100,
+                               max_iter=50,
                                init_params=init.value)
     clusters.fit(sample_set.samples)
 

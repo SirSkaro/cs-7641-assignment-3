@@ -43,3 +43,13 @@ import data_utils
 
 em.create_graph(Task.LETTER_RECOGNITION)
 em.create_graph(Task.SCRIBE_RECOGNITION)
+
+
+# BIC:
+# letter:
+	2: 1210906
+	1000: 1352947
+	2000: 1928724
+	3000: 2803573
+	4000: 3929766
+	
