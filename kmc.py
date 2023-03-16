@@ -1,4 +1,3 @@
-import matplotlib.ticker
 from sklearn.cluster import KMeans
 from sklearn import metrics
 import matplotlib.pyplot as plt
@@ -12,6 +11,7 @@ from enum import Enum
 
 ### Docs used:
 # https://scikit-learn.org/stable/modules/clustering.html#clustering
+# https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html
 # https://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html#sphx-glr-auto-examples-cluster-plot-kmeans-silhouette-analysis-py
 
 
@@ -44,19 +44,18 @@ class ClusterAnalysis:
 
 def create_graph(task: Task):
     sample_set = data_utils.get_all_samples(task)
-    (_, clustering, _), all_average_scores = find_k(sample_set, MeanInit.KM_PP, trials_per_k=5)
-    graph_scores(task, sample_set, clustering, all_average_scores)
+    (_, clustering, best_average_score), all_average_scores = find_k(sample_set, MeanInit.KM_PP, trials_per_k=1)
+    graph_scores(sample_set, clustering, best_average_score, all_average_scores)
 
 
 # Logic largely borrowed from docs listed above
-def graph_scores(task: Task, sample_set: SampleSet, clustering: KMeans, average_scores_for_all_ks):
+def graph_scores(sample_set: SampleSet, clustering: KMeans, best_average_score, average_scores_for_all_ks):
     fig, (ax1, ax2) = plt.subplots(1, 2)
     ax1.set_xlim([-1, 1])   # The silhouette coefficient can range from -1, 1 but in this example all
     ax1.set_ylim([0, len(sample_set.samples) + (clustering.n_clusters + 1) * 10])  # insert blank space between silhouette
 
     # get silhouette metrics
     cluster_labels = clustering.predict(sample_set.samples)
-    silhouette_avg = average_scores_for_all_ks[clustering.n_clusters - 2]
     sample_silhouette_values = metrics.silhouette_samples(sample_set.samples, cluster_labels)
 
     # construct silhouette analysis graph
@@ -84,7 +83,7 @@ def graph_scores(task: Task, sample_set: SampleSet, clustering: KMeans, average_
         # Compute the new y_lower for next plot
         y_lower = y_upper + 10  # 10 for the 0 samples
 
-    ax1.axvline(x=silhouette_avg, color="red", linestyle="--")  # add average line
+    ax1.axvline(x=best_average_score, color="red", linestyle="--")  # add average line
     ax1.set_yticks([])  # Clear the yaxis labels / ticks
 
     # construct average silhouette score per k
@@ -97,14 +96,10 @@ def graph_scores(task: Task, sample_set: SampleSet, clustering: KMeans, average_
     plt.show()
 
 
-def print_scores_to_csv(filename: str, scores: np.ndarray):
-    np.savetxt('outputs/'+filename, scores, delimiter=',', fmt="%1.6f")
-
-
 def find_k(sample_set: SampleSet, init: MeanInit, trials_per_k: int):
     score_cluster_tuples = []
     all_average_scores = []
-    for k in range(2, 201):
+    for k in np.arange(3000, 11001, 1000):
         print(f'Creating cluster for {k}...')
         clustering = create_clustering(sample_set, k, init, trials_per_k)
         average_silhouette_score = metrics.silhouette_score(sample_set.samples, clustering.labels_)

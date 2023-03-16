@@ -32,4 +32,14 @@ scribe_clusters, scribe_analysis = kmc.cluster(scribe_sample_set, k=13, init=kmc
 	2: 0.9905801808292309
 	3: 0.5884568207764931
 	4: 0.1727682678671664
+	5000: 0.1656511552757454
 """
+
+------------------------ EM Clustering --------------------------
+import numpy as np
+import em
+from data_utils import Task
+import data_utils
+
+em.create_graph(Task.LETTER_RECOGNITION)
+em.create_graph(Task.SCRIBE_RECOGNITION)
