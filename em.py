@@ -1,5 +1,6 @@
 from sklearn.mixture import GaussianMixture
 from sklearn import metrics
+from sklearn.preprocessing import normalize
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -14,10 +15,54 @@ from enum import Enum
 # https://scikit-learn.org/stable/modules/mixture.html
 # https://scikit-learn.org/stable/modules/generated/sklearn.mixture.GaussianMixture.html#sklearn.mixture.GaussianMixture
 
-
 class MeanInit(Enum):
     RANDOM = 'random'
     KM_PP = 'k-means++'
+
+
+def graph_evaluations(task: Task, components_of_interest):
+    bic_scores = []
+    homogeneity_scores = []
+    completeness_scores = []
+    v_measure_scores = []
+
+    for components in components_of_interest:
+        scores = evaluate_clustering(task, components)
+        bic_scores.append(scores[0])
+        homogeneity_scores.append(scores[1])
+        completeness_scores.append(scores[2])
+        v_measure_scores.append(scores[3])
+
+    fig, ax = plt.subplots(1, 2)
+    ax[0].set_title('Evaluation Scores')
+    ax[0].set_xlabel("Components")
+    ax[0].set_ylabel("Score")
+    ax[1].set_title('BIC Scores')
+    ax[1].set_xlabel("Components")
+    ax[1].set_ylabel("Score")
+
+    ax[0].plot(components_of_interest, homogeneity_scores, label='Homogeneity Scores', marker="o", drawstyle="default", linestyle='solid')
+    ax[0].plot(components_of_interest, completeness_scores, label='Completeness Scores', marker="o", drawstyle="default", linestyle='solid')
+    ax[0].plot(components_of_interest, v_measure_scores, label='V-Measure Scores', marker="o", drawstyle="default", linestyle='solid')
+
+    ax[1].plot(components_of_interest, bic_scores, marker="o", drawstyle="default", linestyle='solid')
+
+    ax[0].legend(loc="best")
+    plt.show()
+    return bic_scores, homogeneity_scores, completeness_scores, v_measure_scores
+
+
+def evaluate_clustering(task: Task, component_count: int):
+    sample_set = data_utils.get_all_samples(task)
+    clustering = create_clustering(sample_set, component_count, MeanInit.KM_PP)
+    predicted_labels = clustering.predict(sample_set.samples)
+
+    bic = clustering.bic(sample_set.samples)
+    homogeneity = metrics.homogeneity_score(sample_set.labels, predicted_labels)
+    completeness = metrics.completeness_score(sample_set.labels, predicted_labels)
+    v_measure = metrics.v_measure_score(sample_set.labels, predicted_labels)
+
+    return bic, homogeneity, completeness, v_measure
 
 
 def create_graph(task: Task):
@@ -59,7 +104,7 @@ def find_best_cluster(sample_set: SampleSet, init: MeanInit, trials_per_k: int, 
     return (best_k, clustering, score), all_scores
 
 
-def create_clustering(sample_set: SampleSet, k: int, init: MeanInit, trials: int):
+def create_clustering(sample_set: SampleSet, k: int, init: MeanInit, trials: int = 1):
     clusters = GaussianMixture(n_components=k,
                                random_state=0,
                                covariance_type='full',
