@@ -42,14 +42,26 @@ class ClusterAnalysis:
         return self.candidate_clusters[0]
 
 
-def create_graph(task: Task):
+def evaluate_clustering(task: Task, k: int):
     sample_set = data_utils.get_all_samples(task)
-    (_, clustering, best_average_score), all_average_scores = find_k(sample_set, MeanInit.KM_PP, trials_per_k=1)
-    graph_scores(sample_set, clustering, best_average_score, all_average_scores)
+    clustering = create_clustering(sample_set, k, MeanInit.KM_PP)
+    predicted_labels = clustering.predict(sample_set.samples)
+
+    homogeneity = metrics.homogeneity_score(sample_set.labels, predicted_labels)
+    completeness = metrics.completeness_score(sample_set.labels, predicted_labels)
+    v_measure = metrics.v_measure_score(sample_set.labels, predicted_labels)
+
+    return homogeneity, completeness, v_measure
+
+
+def create_graph(task: Task, ks_to_try: np.array):
+    sample_set = data_utils.get_all_samples(task)
+    (_, clustering, best_average_score), all_average_scores = find_k(sample_set, MeanInit.KM_PP, trials_per_k=1, ks_to_try=ks_to_try)
+    graph_scores(sample_set, clustering, best_average_score, all_average_scores, ks_to_try)
 
 
 # Logic largely borrowed from docs listed above
-def graph_scores(sample_set: SampleSet, clustering: KMeans, best_average_score, average_scores_for_all_ks):
+def graph_scores(sample_set: SampleSet, clustering: KMeans, best_average_score, average_scores_for_all_ks, ks_to_try: np.array):
     fig, (ax1, ax2) = plt.subplots(1, 2)
     ax1.set_xlim([-1, 1])   # The silhouette coefficient can range from -1, 1 but in this example all
     ax1.set_ylim([0, len(sample_set.samples) + (clustering.n_clusters + 1) * 10])  # insert blank space between silhouette
@@ -63,14 +75,14 @@ def graph_scores(sample_set: SampleSet, clustering: KMeans, best_average_score, 
     ax1.set_xlabel("The silhouette coefficient values")
     ax1.set_ylabel("Cluster")
     y_lower = 10
-    for i in range(clustering.n_clusters):
+    for k in ks_to_try:
         # Aggregate the silhouette scores for samples belonging to
         # cluster i, and sort them
-        ith_cluster_silhouette_values = sample_silhouette_values[cluster_labels == i]
+        ith_cluster_silhouette_values = sample_silhouette_values[cluster_labels == k]
         ith_cluster_silhouette_values.sort()
         size_cluster_i = ith_cluster_silhouette_values.shape[0]
         y_upper = y_lower + size_cluster_i
-        color = cm.nipy_spectral(float(i) / clustering.n_clusters)
+        color = cm.nipy_spectral(float(k) / clustering.n_clusters)
         ax1.fill_betweenx(
             np.arange(y_lower, y_upper),
             0,
@@ -79,7 +91,7 @@ def graph_scores(sample_set: SampleSet, clustering: KMeans, best_average_score, 
             edgecolor=color,
             alpha=0.7,
         )
-        ax1.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))  # Label the silhouette plots with their cluster numbers at the middle
+        ax1.text(-0.05, y_lower + 0.5 * size_cluster_i, str(k))  # Label the silhouette plots with their cluster numbers at the middle
         # Compute the new y_lower for next plot
         y_lower = y_upper + 10  # 10 for the 0 samples
 
@@ -96,10 +108,10 @@ def graph_scores(sample_set: SampleSet, clustering: KMeans, best_average_score, 
     plt.show()
 
 
-def find_k(sample_set: SampleSet, init: MeanInit, trials_per_k: int):
+def find_k(sample_set: SampleSet, init: MeanInit, trials_per_k: int, ks_to_try: np.array):
     score_cluster_tuples = []
     all_average_scores = []
-    for k in np.arange(3000, 11001, 1000):
+    for k in ks_to_try:
         print(f'Creating cluster for {k}...')
         clustering = create_clustering(sample_set, k, init, trials_per_k)
         average_silhouette_score = metrics.silhouette_score(sample_set.samples, clustering.labels_)
@@ -115,7 +127,7 @@ def find_k(sample_set: SampleSet, init: MeanInit, trials_per_k: int):
     return (best_k, clustering, avg_score), all_average_scores
 
 
-def create_clustering(sample_set: SampleSet, k: int, init: MeanInit, trials: int):
+def create_clustering(sample_set: SampleSet, k: int, init: MeanInit, trials: int = 1):
     clusters = KMeans(n_clusters=k,
                       init=init.value,
                       n_init=trials,

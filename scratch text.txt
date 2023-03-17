@@ -22,14 +22,17 @@ letter_clusters, letter_analysis = kmc.cluster(letter_sample_set, k=26, init=kmc
 scribe_sample_set = data_utils.get_all_samples(Task.SCRIBE_RECOGNITION)
 scribe_clusters, scribe_analysis = kmc.cluster(scribe_sample_set, k=13, init=kmc.MeanInit.KM_PP, trials=5)
 
+homogeneity, completeness, v_measure = kmc.evaluate_clustering(Task.LETTER_RECOGNITION, 450)
+
 """
 # silloette scores:
 # letter: 
-	200; 0.19084691036698107
-	176: 0.1931728701901657
+	176: 0.1931728701901657 | completeness: 0.4356951219636452 | 0.6796690349100583 | 0.5309987437467609
+	200; 0.19084691036698107  | completeness: 0.44018072013264326 | 0.7054080230190843 | 0.5420915898765245
+	450: 0.2020981461244021 (best) | completeness: 0.4458824349673295 | homogeneity: 0.8252565553595167 | v_measure: 0.5789569908194494
 	
 # scribe:
-	2: 0.9905801808292309
+	2: 0.9905801808292309 (best)
 	3: 0.5884568207764931
 	4: 0.1727682678671664
 	5000: 0.1656511552757454
@@ -48,11 +51,11 @@ em.create_graph(Task.SCRIBE_RECOGNITION)
 # BIC:
 # letter:
 	2: 1210906
-	140: 682616
+	140: 682616 (best)
 	1000: 1352947
 	2000: 1928724
 	3000: 2803573
 	4000: 3929766
 # scribe:
 	180: -100133
-	550: -130361
+	550: -130361 (best)
