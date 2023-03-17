@@ -21,7 +21,7 @@ class MeanInit(Enum):
 
 
 def create_graph(task: Task):
-    components_to_try = np.arange(2, 103, 10)
+    components_to_try = np.arange(100, 201, 10)
     sample_set = data_utils.get_all_samples(task)
     (best_component, clustering, score), all_scores = find_best_cluster(sample_set, MeanInit.KM_PP,
                                                                         trials_per_k=1,
