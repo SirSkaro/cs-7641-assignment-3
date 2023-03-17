@@ -7,6 +7,11 @@ Think about the density/separation of clusters
 #Part 2:
 Pair-wise plots
 
+metrics:
+	PCA: distribution of Eignvalues (or surregate metrics, e.g., explained variance)
+	ICA: Kurtosis
+	RP: reconstruction
+	Wall clock time
 
 ------------------------ K-Means Clustering --------------------------
 import numpy as np
@@ -60,3 +65,11 @@ em.create_graph(Task.SCRIBE_RECOGNITION)
 # scribe:
 	180: -100133
 	550: -130361 (best)
+	
+------------------------ PCA --------------------------
+import numpy as np
+import pca
+from data_utils import Task
+import data_utils
+
+
