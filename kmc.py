@@ -42,16 +42,41 @@ class ClusterAnalysis:
         return self.candidate_clusters[0]
 
 
+def graph_evaluations(task: Task, ks_of_interest):
+    silhouette_scores = []
+    homogeneity_scores = []
+    completeness_scores = []
+    v_measure_scores = []
+
+    for k in ks_of_interest:
+        scores = evaluate_clustering(task, k)
+        silhouette_scores.append(scores[0])
+        homogeneity_scores.append(scores[1])
+        completeness_scores.append(scores[2])
+        v_measure_scores.append(scores[3])
+
+    fig, ax = plt.subplots(1, 1)
+    ax.plot(ks_of_interest, silhouette_scores, label='Silhouette Scores', marker="o", drawstyle="default", linestyle='solid')
+    ax.plot(ks_of_interest, homogeneity_scores, label='Homogeneity Scores', marker="o", drawstyle="default", linestyle='solid')
+    ax.plot(ks_of_interest, completeness_scores, label='Completeness Scores', marker="o", drawstyle="default", linestyle='solid')
+    ax.plot(ks_of_interest, v_measure_scores, label='V-Measure Scores', marker="o", drawstyle="default", linestyle='solid')
+
+    ax.legend(loc="best")
+    plt.show()
+    return silhouette_scores, homogeneity_scores, completeness_scores, v_measure_scores
+
+
 def evaluate_clustering(task: Task, k: int):
     sample_set = data_utils.get_all_samples(task)
     clustering = create_clustering(sample_set, k, MeanInit.KM_PP)
     predicted_labels = clustering.predict(sample_set.samples)
 
+    average_silhouette_score = metrics.silhouette_score(sample_set.samples, clustering.labels_)
     homogeneity = metrics.homogeneity_score(sample_set.labels, predicted_labels)
     completeness = metrics.completeness_score(sample_set.labels, predicted_labels)
     v_measure = metrics.v_measure_score(sample_set.labels, predicted_labels)
 
-    return homogeneity, completeness, v_measure
+    return average_silhouette_score, homogeneity, completeness, v_measure
 
 
 def create_graph(task: Task, ks_to_try: np.array):
