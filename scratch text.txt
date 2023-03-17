@@ -72,4 +72,7 @@ import pca
 from data_utils import Task
 import data_utils
 
+task = Task.LETTER_RECOGNITION
+sample_set = data_utils.get_all_samples(task)
+model, transformed_data = pca.transform(sample_set, 3)
 

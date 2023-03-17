@@ -19,6 +19,7 @@ def plot_3d(task: Task):
         transformed_data[:, 0],
         transformed_data[:, 1],
         transformed_data[:, 2],
+        c=sample_set.labels.astype('|S1').view(np.uint8),
         cmap=plt.cm.Set1,
         edgecolor="k",
         s=40,
@@ -39,7 +40,7 @@ def transform(sample_set: SampleSet, num_components):
                   algorithm='parallel',
                   whiten='warn',
                   fun='logcosh',
-                  max_iter=100,
+                  max_iter=1500,
                   whiten_solver='eigh')
     ica.fit(sample_set.samples)
     return ica, ica.transform(sample_set.samples)
