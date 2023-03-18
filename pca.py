@@ -12,6 +12,7 @@ import data_utils
 # https://scikit-learn.org/stable/auto_examples/datasets/plot_iris_dataset.html#sphx-glr-auto-examples-datasets-plot-iris-dataset-py
 # https://matplotlib.org/stable/gallery/pie_and_polar_charts/pie_features.html
 
+
 def plot_3d(task: Task):
     sample_set = data_utils.get_all_samples(task)
     pca, transformed_data = transform(sample_set, 3)

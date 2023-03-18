@@ -1,6 +1,9 @@
 from sklearn.decomposition import FastICA
 import numpy as np
+from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
+from matplotlib import style
+import scipy.stats as stats
 
 from data_utils import Task, SampleSet
 import data_utils
@@ -35,12 +38,50 @@ def plot_3d(task: Task):
     plt.show()
 
 
+def graph_analysis(task: Task):
+    sample_set = data_utils.get_all_samples(task)
+    num_features = sample_set.samples.shape[1] - 14
+    all_kurtosis_scores = []
+    components_to_try = np.arange(1, num_features + 1)
+    for num_components in components_to_try:
+        kurtosis_scores = []
+        ica, _ = transform(sample_set, num_components)
+        for component in ica.components_:
+            abs_kurtosis = np.abs(stats.kurtosis(component))
+            kurtosis_scores.append(abs_kurtosis)
+        kurtosis_scores = np.pad(kurtosis_scores, (0, num_features - num_components))
+        all_kurtosis_scores.append(kurtosis_scores)
+
+    style.use('ggplot')
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(111, projection='3d')
+
+    x3 = np.tile(components_to_try, num_features)
+    y3 = np.repeat(components_to_try, num_features)
+    z3 = np.zeros(num_features * num_features)
+
+    dx = np.ones(4)
+    dy = np.ones(4)
+    dz = np.array(all_kurtosis_scores).flatten()
+    print(all_kurtosis_scores)
+
+    ax1.bar3d(x3, y3, z3, dx, dy, dz)
+
+    ax1.set_xlabel('x axis')
+    ax1.set_ylabel('y axis')
+    ax1.set_zlabel('z axis')
+
+    plt.show()
+
+
 def transform(sample_set: SampleSet, num_components):
     ica = FastICA(n_components=num_components,
                   algorithm='parallel',
-                  whiten='warn',
+                  whiten='unit-variance',
                   fun='logcosh',
-                  max_iter=1500,
-                  whiten_solver='eigh')
+                  max_iter=2000,
+                  whiten_solver='eigh',
+                  random_state=0)
     ica.fit(sample_set.samples)
     return ica, ica.transform(sample_set.samples)
