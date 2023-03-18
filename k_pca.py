@@ -79,18 +79,16 @@ def graph_analysis(task: Task, kernels, percent_training: float = 0.95):
 
     fig, ax = plt.subplots(num_kernels, 2)
     for index, kernel in enumerate(kernels):
-        kpca, transformed_training_set = transform(training_set, kernel, num_features)
-        explained_variance = np.var(transformed_training_set, axis=0)
-        explained_variance_ratio = explained_variance / np.sum(explained_variance)
+        kpca, _ = transform(training_set, kernel, num_features)
+        eigenvalue_ratio = kpca.eigenvalues_ / kpca.eigenvalues_.max()
 
-        ax[index][0].set_title('Explained Variance per Component')
-        ax[index][0].set_xlabel("Components")
-        ax[index][0].set_ylabel("Explained Variance")
-        ax[index][1].set_title('Explained Variance Ratios')
+        ax[index][0].set_title(f'Eigenvalues per component ({kernel.upper()})')
+        ax[index][0].xaxis.set_ticklabels([])
+        ax[index][0].set_ylabel("Eigenvalues")
 
         component_labels = np.arange(1, num_features+1)
-        ax[index][0].plot(component_labels, explained_variance, marker="o", drawstyle="default", linestyle='solid')
-        ax[index][1].pie(explained_variance_ratio, labels=component_labels, autopct='%1.1f%%', pctdistance=1.25, labeldistance=.6, radius=1.1)
+        ax[index][0].plot(component_labels, kpca.eigenvalues_, marker="o", drawstyle="default", linestyle='solid')
+        ax[index][1].pie(eigenvalue_ratio, labels=component_labels, autopct='%1.1f%%', pctdistance=1.25, labeldistance=.6, radius=1.1)
 
     plt.show()
 
