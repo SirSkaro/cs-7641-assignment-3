@@ -2,6 +2,7 @@ from sklearn.decomposition import KernelPCA
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
+from mpl_toolkits.mplot3d import Axes3D
 
 from data_utils import Task, SampleSet
 import data_utils
@@ -18,9 +19,8 @@ def plot_3d(task: Task, kernel: str, percent_training: float = 0.75):
     kpca, transformed_training_data = transform(training_set, kernel, 3)
     transformed_test_data = kpca.transform(test_set.samples)
 
-    fig = plt.figure(1, figsize=(8, 6))
-    ax = fig.add_subplot(111, projection="3d", elev=-150, azim=110)
-    ax.scatter(
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 10), subplot_kw=dict(projection='3d'))
+    ax1.scatter(
         transformed_training_data[:, 0],
         transformed_training_data[:, 1],
         transformed_training_data[:, 2],
@@ -29,16 +29,15 @@ def plot_3d(task: Task, kernel: str, percent_training: float = 0.75):
         edgecolor="k",
         s=40,
     )
-    ax.set_title("First three PCA directions for training set")
-    ax.set_xlabel("1st eigenvector")
-    ax.xaxis.set_ticklabels([])
-    ax.set_ylabel("2nd eigenvector")
-    ax.yaxis.set_ticklabels([])
-    ax.set_zlabel("3rd eigenvector")
-    ax.zaxis.set_ticklabels([])
+    ax1.set_title("First three PCA directions for training set")
+    ax1.set_xlabel("1st eigenvector")
+    ax1.xaxis.set_ticklabels([])
+    ax1.set_ylabel("2nd eigenvector")
+    ax1.yaxis.set_ticklabels([])
+    ax1.set_zlabel("3rd eigenvector")
+    ax1.zaxis.set_ticklabels([])
 
-    ax = fig.add_subplot(222, projection="3d", elev=-150, azim=110)
-    ax.scatter(
+    ax2.scatter(
         transformed_test_data[:, 0],
         transformed_test_data[:, 1],
         transformed_test_data[:, 2],
@@ -47,13 +46,13 @@ def plot_3d(task: Task, kernel: str, percent_training: float = 0.75):
         edgecolor="k",
         s=40,
     )
-    ax.set_title("First three PCA directions for test set")
-    ax.set_xlabel("1st eigenvector")
-    ax.xaxis.set_ticklabels([])
-    ax.set_ylabel("2nd eigenvector")
-    ax.yaxis.set_ticklabels([])
-    ax.set_zlabel("3rd eigenvector")
-    ax.zaxis.set_ticklabels([])
+    ax2.set_title("First three PCA directions for test set")
+    ax2.set_xlabel("1st eigenvector")
+    ax2.xaxis.set_ticklabels([])
+    ax2.set_ylabel("2nd eigenvector")
+    ax2.yaxis.set_ticklabels([])
+    ax2.set_zlabel("3rd eigenvector")
+    ax2.zaxis.set_ticklabels([])
 
     plt.show()
 
