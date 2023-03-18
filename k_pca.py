@@ -8,51 +8,64 @@ from data_utils import Task, SampleSet
 import data_utils
 
 ### Docs used:
-# https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html#sklearn.decomposition.PCA
-# https://scikit-learn.org/stable/modules/decomposition.html#principal-component-analysis-pca
-# https://scikit-learn.org/stable/auto_examples/datasets/plot_iris_dataset.html#sphx-glr-auto-examples-datasets-plot-iris-dataset-py
-# https://matplotlib.org/stable/gallery/pie_and_polar_charts/pie_features.html
+# https://scikit-learn.org/stable/auto_examples/decomposition/plot_kernel_pca.html#sphx-glr-auto-examples-decomposition-plot-kernel-pca-py
+# https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.KernelPCA.html#sklearn.decomposition.KernelPCA
 
-
-def plot_3d(task: Task, kernel: str, percent_training: float = 0.75):
+def plot_3d(task: Task, kernels, percent_training: float = 0.75):
     training_set, test_set = data_utils.get_training_and_test_sets(task, percent_training)
-    kpca, transformed_training_data = transform(training_set, kernel, 3)
-    transformed_test_data = kpca.transform(test_set.samples)
+    fig = plt.figure(figsize=plt.figaspect(0.5))
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, subplot_kw=dict(projection='3d'))
-    ax1.scatter(
-        transformed_training_data[:, 0],
-        transformed_training_data[:, 1],
-        transformed_training_data[:, 2],
-        c=training_set.labels.astype('|S1').view(np.uint8),
-        cmap=plt.cm.Set1,
-        edgecolor="k",
-        s=40,
-    )
-    ax1.set_title("First three PCA directions for training set")
-    ax1.set_xlabel("1st eigenvector")
-    ax1.xaxis.set_ticklabels([])
-    ax1.set_ylabel("2nd eigenvector")
-    ax1.yaxis.set_ticklabels([])
-    ax1.set_zlabel("3rd eigenvector")
-    ax1.zaxis.set_ticklabels([])
+    def plot_kernel(kernel, percent_training, ax1, ax2, ax3):
+        kpca, transformed_training_data = transform(training_set, kernel, 3)
+        transformed_test_data = kpca.transform(test_set.samples)
 
-    ax2.scatter(
-        transformed_test_data[:, 0],
-        transformed_test_data[:, 1],
-        transformed_test_data[:, 2],
-        c=test_set.labels.astype('|S1').view(np.uint8),
-        cmap=plt.cm.Set1,
-        edgecolor="k",
-        s=40,
-    )
-    ax2.set_title("First three PCA directions for test set")
-    ax2.set_xlabel("1st eigenvector")
-    ax2.xaxis.set_ticklabels([])
-    ax2.set_ylabel("2nd eigenvector")
-    ax2.yaxis.set_ticklabels([])
-    ax2.set_zlabel("3rd eigenvector")
-    ax2.zaxis.set_ticklabels([])
+        ax1.scatter(
+            transformed_training_data[:, 0],
+            transformed_training_data[:, 1],
+            transformed_training_data[:, 2],
+            c=training_set.labels.astype('|S1').view(np.uint8),
+            cmap=plt.cm.Set1,
+            edgecolor="k",
+            s=40,
+        )
+        ax1.set_title(f'Transformed training set ({percent_training * 100}%) using {kernel.upper()}')
+        ax1.set_xlabel("1st eigenvector")
+        ax1.xaxis.set_ticklabels([])
+        ax1.set_ylabel("2nd eigenvector")
+        ax1.yaxis.set_ticklabels([])
+        ax1.set_zlabel("3rd eigenvector")
+        ax1.zaxis.set_ticklabels([])
+
+        ax2.scatter(
+            transformed_test_data[:, 0],
+            transformed_test_data[:, 1],
+            transformed_test_data[:, 2],
+            c=test_set.labels.astype('|S1').view(np.uint8),
+            cmap=plt.cm.Set1,
+            edgecolor="k",
+            s=40,
+        )
+        ax2.set_title(f'Transformed test set ({percent_training * 100}%) using {kernel.upper()}')
+        ax2.set_xlabel("1st eigenvector")
+        ax2.xaxis.set_ticklabels([])
+        ax2.set_ylabel("2nd eigenvector")
+        ax2.yaxis.set_ticklabels([])
+        ax2.set_zlabel("3rd eigenvector")
+        ax2.zaxis.set_ticklabels([])
+
+        ax3.bar([1, 2, 3], kpca.eigenvalues_)
+        ax3.set_title("Eigenvalues")
+        ax3.set_xlabel("Component")
+        ax3.set_ylabel("Eigenvalue")
+
+    num_rows = len(kernels)
+    spec = fig.add_gridspec(ncols=3, nrows=num_rows)
+
+    for index, kernel in enumerate(kernels):
+        ax1 = fig.add_subplot(spec[index, 0], projection='3d')
+        ax2 = fig.add_subplot(spec[index, 1], projection='3d')
+        ax3 = fig.add_subplot(spec[index, 2])
+        plot_kernel(kernel, percent_training, ax1, ax2, ax3)
 
     plt.show()
 
