@@ -72,9 +72,9 @@ def graph_analysis(task: Task, trials: int):
     ax.set_xlabel("Number of components")
     ax.set_ylabel("Sum of squared error")
 
-    ax.bar(components_to_try, mean_errors, label='Mean error')
-    ax.bar(components_to_try, best_errors, alpha=0.5, width=0.75, label='Best error')
-    ax.bar(components_to_try, worst_errors, alpha=0.1, width=0.5, label='Worst error')
+    ax.bar(components_to_try, mean_errors, width=0.5, label='Mean error')
+    ax.bar(components_to_try, best_errors, alpha=0.5, width=0.25, label='Best error')
+    ax.bar(components_to_try, worst_errors, alpha=0.1, width=0.75, label='Worst error')
     plt.legend(loc='best')
     plt.show()
 
