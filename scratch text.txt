@@ -87,3 +87,11 @@ import scipy.stats as stats
 
 letter_kurtosis_scores = ica.graph_analysis(Task.LETTER_RECOGNITION)
 scribe_kurtosis_scores = ica.graph_analysis(Task.SCRIBE_RECOGNITION)
+
+
+------------------------ RP --------------------------
+import numpy as np
+import rp
+from data_utils import Task
+import data_utils
+

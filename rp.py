@@ -20,6 +20,7 @@ def plot_3d(task: Task):
         transformed_data[:, 0],
         transformed_data[:, 1],
         transformed_data[:, 2],
+        c=sample_set.labels.astype('|S1').view(np.uint8),
         cmap=plt.cm.Set1,
         edgecolor="k",
         s=40,
