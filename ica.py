@@ -40,7 +40,7 @@ def plot_3d(task: Task):
 
 def graph_analysis(task: Task):
     sample_set = data_utils.get_all_samples(task)
-    num_features = sample_set.samples.shape[1] - 14
+    num_features = sample_set.samples.shape[1]
     all_kurtosis_scores = []
     components_to_try = np.arange(1, num_features + 1)
     for num_components in components_to_try:
@@ -59,10 +59,10 @@ def graph_analysis(task: Task):
 
     x3 = np.tile(components_to_try, num_features)
     y3 = np.repeat(components_to_try, num_features)
-    z3 = np.zeros(num_features * num_features)
+    z3 = np.zeros(np.square(num_features))
 
-    dx = np.ones(4)
-    dy = np.ones(4)
+    dx = np.ones(np.square(num_features))
+    dy = np.ones(np.square(num_features))
     dz = np.array(all_kurtosis_scores).flatten()
     print(all_kurtosis_scores)
 
