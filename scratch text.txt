@@ -95,3 +95,5 @@ import rp
 from data_utils import Task
 import data_utils
 
+letter_errors = rp.graph_analysis(Task.LETTER_RECOGNITION, 5)
+scribe_errors = rp.graph_analysis(Task.SCRIBE_RECOGNITION, 5)
