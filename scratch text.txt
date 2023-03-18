@@ -84,6 +84,6 @@ from data_utils import Task
 import data_utils
 import scipy.stats as stats
 
-task = Task.LETTER_RECOGNITION
-sample_set = data_utils.get_all_samples(task)
-model, transformed_data = ica.transform(sample_set, 3)
+
+letter_kurtosis_scores = ica.graph_analysis(Task.LETTER_RECOGNITION)
+scribe_kurtosis_scores = ica.graph_analysis(Task.SCRIBE_RECOGNITION)
