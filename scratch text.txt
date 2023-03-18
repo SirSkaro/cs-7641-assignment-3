@@ -97,3 +97,12 @@ import data_utils
 
 letter_errors = rp.graph_analysis(Task.LETTER_RECOGNITION, 5)
 scribe_errors = rp.graph_analysis(Task.SCRIBE_RECOGNITION, 5)
+
+------------------------ kPCA --------------------------
+import numpy as np
+import k_pca
+from data_utils import Task
+import data_utils
+
+sample_set, test_set = data_utils.get_training_and_test_sets(Task.LETTER_RECOGNITION, 0.05)
+model, transformed_data = k_pca.transform(sample_set, 'rbf', 3)

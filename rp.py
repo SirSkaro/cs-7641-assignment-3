@@ -50,7 +50,6 @@ def graph_analysis(task: Task, trials: int):
         errors = []
         best_error = float("inf")
         best_model = None
-        worst_error = float("-inf")
         for trial in range(trials):
             rp, transformed_data = transform(sample_set, num_components)
             # compute reconstruction error
