@@ -48,9 +48,9 @@ def graph_analysis(task: Task):
     components_to_try = np.arange(1, num_features + 1)
     for num_components in components_to_try:
         kurtosis_scores = []
-        ica, _ = transform(sample_set, num_components)
-        for component in ica.components_:
-            abs_kurtosis = np.abs(stats.kurtosis(component))
+        ica, transformed_data = transform(sample_set, num_components)
+        for component in range(num_components):
+            abs_kurtosis = np.abs(stats.kurtosis(transformed_data[:, component]))
             kurtosis_scores.append(abs_kurtosis)
         kurtosis_scores = np.pad(kurtosis_scores, (0, num_features - num_components))
         all_kurtosis_scores.append(kurtosis_scores)
