@@ -61,16 +61,16 @@ def graph_analysis(task: Task):
     y3 = np.repeat(components_to_try, num_features)
     z3 = np.zeros(np.square(num_features))
 
-    dx = np.ones(np.square(num_features))
-    dy = np.ones(np.square(num_features))
+    dx = .25 * np.ones(np.square(num_features))
+    dy = .25 * np.ones(np.square(num_features))
     dz = np.array(all_kurtosis_scores).flatten()
     print(all_kurtosis_scores)
 
-    ax1.bar3d(x3, y3, z3, dx, dy, dz)
+    ax1.bar3d(x3, y3, z3, dx, dy, dz, color='w')
 
-    ax1.set_xlabel('x axis')
-    ax1.set_ylabel('y axis')
-    ax1.set_zlabel('z axis')
+    ax1.set_xlabel('projection')
+    ax1.set_ylabel('# of components')
+    ax1.set_zlabel('kurtosis')
 
     plt.show()
 
