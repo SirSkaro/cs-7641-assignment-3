@@ -11,7 +11,8 @@ import data_utils
 # https://scikit-learn.org/stable/auto_examples/decomposition/plot_kernel_pca.html#sphx-glr-auto-examples-decomposition-plot-kernel-pca-py
 # https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.KernelPCA.html#sklearn.decomposition.KernelPCA
 
-def plot_3d(task: Task, kernels, percent_training: float = 0.75):
+
+def plot_3d(task: Task, kernels, percent_training: float = 0.95):
     training_set, test_set = data_utils.get_training_and_test_sets(task, percent_training)
     fig = plt.figure(figsize=plt.figaspect(0.5))
 
@@ -45,7 +46,7 @@ def plot_3d(task: Task, kernels, percent_training: float = 0.75):
             edgecolor="k",
             s=40,
         )
-        ax2.set_title(f'Transformed test set ({percent_training * 100}%) using {kernel.upper()}')
+        ax2.set_title(f'Transformed test set ({(round(1.0-percent_training, 2)) * 100}%) using {kernel.upper()}')
         ax2.set_xlabel("1st eigenvector")
         ax2.xaxis.set_ticklabels([])
         ax2.set_ylabel("2nd eigenvector")
@@ -65,25 +66,31 @@ def plot_3d(task: Task, kernels, percent_training: float = 0.75):
         ax1 = fig.add_subplot(spec[index, 0], projection='3d')
         ax2 = fig.add_subplot(spec[index, 1], projection='3d')
         ax3 = fig.add_subplot(spec[index, 2])
+        print('Creating plots for ' + kernel)
         plot_kernel(kernel, percent_training, ax1, ax2, ax3)
 
     plt.show()
 
 
-def graph_analysis(task: Task):
-    sample_set = data_utils.get_all_samples(task)
-    num_features = sample_set.samples.shape[1]
-    pca, _ = transform(sample_set, num_features)
+def graph_analysis(task: Task, kernels, percent_training: float = 0.95):
+    training_set, test_set = data_utils.get_training_and_test_sets(task, percent_training)
+    num_features = training_set.samples.shape[1]
+    num_kernels = len(kernels)
 
-    fig, ax = plt.subplots(1, 2)
-    ax[0].set_title('Explained Variance per Component')
-    ax[0].set_xlabel("Components")
-    ax[0].set_ylabel("Explained Variance")
-    ax[1].set_title('Explained Variance Ratios')
+    fig, ax = plt.subplots(num_kernels, 2)
+    for index, kernel in enumerate(kernels):
+        kpca, transformed_training_set = transform(training_set, kernel, num_features)
+        explained_variance = np.var(transformed_training_set, axis=0)
+        explained_variance_ratio = explained_variance / np.sum(explained_variance)
 
-    component_labels = np.arange(1, num_features+1)
-    ax[0].plot(component_labels, pca.explained_variance_, marker="o", drawstyle="default", linestyle='solid')
-    ax[1].pie(pca.explained_variance_ratio_, labels=component_labels, autopct='%1.1f%%', pctdistance=1.25, labeldistance=.6, radius=1.1)
+        ax[index][0].set_title('Explained Variance per Component')
+        ax[index][0].set_xlabel("Components")
+        ax[index][0].set_ylabel("Explained Variance")
+        ax[index][1].set_title('Explained Variance Ratios')
+
+        component_labels = np.arange(1, num_features+1)
+        ax[index][0].plot(component_labels, explained_variance, marker="o", drawstyle="default", linestyle='solid')
+        ax[index][1].pie(explained_variance_ratio, labels=component_labels, autopct='%1.1f%%', pctdistance=1.25, labeldistance=.6, radius=1.1)
 
     plt.show()
 

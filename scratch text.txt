@@ -106,3 +106,5 @@ import data_utils
 
 sample_set, test_set = data_utils.get_training_and_test_sets(Task.LETTER_RECOGNITION, 0.05)
 model, transformed_data = k_pca.transform(sample_set, 'rbf', 3)
+
+k_pca.plot_3d(Task.LETTER_RECOGNITION, ['sigmoid', 'rbf', 'poly'], 0.8)
