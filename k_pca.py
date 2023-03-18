@@ -19,7 +19,7 @@ def plot_3d(task: Task, kernel: str, percent_training: float = 0.75):
     kpca, transformed_training_data = transform(training_set, kernel, 3)
     transformed_test_data = kpca.transform(test_set.samples)
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 10), subplot_kw=dict(projection='3d'))
+    fig, (ax1, ax2) = plt.subplots(1, 2, subplot_kw=dict(projection='3d'))
     ax1.scatter(
         transformed_training_data[:, 0],
         transformed_training_data[:, 1],
