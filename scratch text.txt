@@ -110,3 +110,18 @@ sample_set, test_set = data_utils.get_training_and_test_sets(Task.LETTER_RECOGNI
 model, transformed_data = k_pca.transform(sample_set, 'rbf', 3)
 
 k_pca.plot_3d(Task.LETTER_RECOGNITION, ['sigmoid', 'rbf', 'poly'], 0.8)
+
+
+------------------------ part 3 --------------------------
+import numpy as np
+from data_utils import Task
+import data_utils
+import em
+import ica
+import kmc
+import k_pca
+import pca
+import rp
+import part3
+
+silhouette_scores, homogeneity_scores, completeness_scores, v_measure_scores = part3.pca_km(Task.LETTER_RECOGNITION)

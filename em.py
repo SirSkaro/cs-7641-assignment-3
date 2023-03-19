@@ -1,6 +1,5 @@
 from sklearn.mixture import GaussianMixture
 from sklearn import metrics
-from sklearn.preprocessing import normalize
 import matplotlib.pyplot as plt
 import numpy as np
 

@@ -20,36 +20,15 @@ class MeanInit(Enum):
     KM_PP = 'k-means++'
 
 
-class CandidateCluster:
-    def __init__(self, cluster_class, sample_count):
-        self.cluster_class = cluster_class
-        self.sample_count = sample_count
-
-
-class ClusterAnalysis:
-    def __init__(self, label, candidate_clusters, total):
-        self.label = label
-        self.candidate_clusters = sorted(candidate_clusters, key=lambda candidate: candidate.sample_count, reverse=True)
-        self.total = total
-
-    def __str__(self):
-        most_likely_cluster = self.most_likely_cluster()
-        sample_count = most_likely_cluster.sample_count
-        confidence = round(sample_count/self.total * 100, 4)
-        return f'{self.label} -> {most_likely_cluster.cluster_class} ({sample_count}/{self.total} | {confidence}%)'
-
-    def most_likely_cluster(self) -> CandidateCluster:
-        return self.candidate_clusters[0]
-
-
-def graph_evaluations(task: Task, ks_of_interest):
+def graph_evaluations(sample_set: SampleSet, ks_of_interest):
     silhouette_scores = []
     homogeneity_scores = []
     completeness_scores = []
     v_measure_scores = []
 
     for k in ks_of_interest:
-        scores = evaluate_clustering(task, k)
+        print(f'Evaluating clustering for {k}...')
+        scores = evaluate_clustering(sample_set, k)
         silhouette_scores.append(scores[0])
         homogeneity_scores.append(scores[1])
         completeness_scores.append(scores[2])
@@ -66,8 +45,7 @@ def graph_evaluations(task: Task, ks_of_interest):
     return silhouette_scores, homogeneity_scores, completeness_scores, v_measure_scores
 
 
-def evaluate_clustering(task: Task, k: int):
-    sample_set = data_utils.get_all_samples(task)
+def evaluate_clustering(sample_set: SampleSet, k: int):
     clustering = create_clustering(sample_set, k, MeanInit.KM_PP)
     predicted_labels = clustering.predict(sample_set.samples)
 
@@ -79,8 +57,7 @@ def evaluate_clustering(task: Task, k: int):
     return average_silhouette_score, homogeneity, completeness, v_measure
 
 
-def create_graph(task: Task, ks_to_try: np.array):
-    sample_set = data_utils.get_all_samples(task)
+def create_graph(sample_set: SampleSet, ks_to_try: np.array):
     (_, clustering, best_average_score), all_average_scores = find_k(sample_set, MeanInit.KM_PP, trials_per_k=1, ks_to_try=ks_to_try)
     graph_scores(sample_set, clustering, best_average_score, all_average_scores, ks_to_try)
 
@@ -160,20 +137,5 @@ def create_clustering(sample_set: SampleSet, k: int, init: MeanInit, trials: int
                       random_state=None)
     clusters.fit(sample_set.samples)
 
-    return clusters #analyze(clusters, sample_set)
-
-
-def analyze(clusters: KMeans, sample_set: SampleSet):
-    classes = np.unique(sample_set.labels)
-    class_cluster_map = {}
-    for clazz in classes:
-        class_mask = np.where(sample_set.labels == clazz)
-        samples_of_class = sample_set.samples[class_mask]
-        predicted_clusters = clusters.predict(samples_of_class)
-        occurrences_of_clusters = np.bincount(predicted_clusters)
-        candidate_clusters = [CandidateCluster(tup[0], tup[1]) for tup in enumerate(occurrences_of_clusters)]
-        analysis = ClusterAnalysis(label=clazz, candidate_clusters=candidate_clusters, total=occurrences_of_clusters.sum())
-        class_cluster_map[clazz] = analysis
-
-    return class_cluster_map
+    return clusters
 

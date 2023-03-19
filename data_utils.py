@@ -34,6 +34,9 @@ class Task(Enum):
 
 class SampleSet:
     def __init__(self, samples, labels):
+        if not samples.shape[0] == labels.shape[0]:
+            raise ValueError('mismatch in number of labels vs samples')
+
         self.samples = samples
         self.labels = labels
         self._label_int_map = None
