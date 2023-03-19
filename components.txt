@@ -1,0 +1,12 @@
+Letter:
+    PCA: 6 (get 78.3% of explained variance)
+    ICA: 12 (not too far from max, but actually reduces dimensionality)
+    RP: 11 (on average, reconstruction is less than half a million. At best, it's ~100k)
+    KPCA: 6 (Using Cosine kernel, since it seems to spread cluster the data points the best and has the greatest eigenvalues.
+            Also accounts for 79.1% of the eigenvalues)
+
+Scribe:
+    PCA: 4 (get 80.2% of explained variance)
+    ICA: 1 (monotonically decreases)
+    RP: 6 (on average, about half the reconstruction error of only one random projection)
+    KPCA: 5 (Using RBF, seems to cluster the data points the best. Accounts for 79% of eigenvalues)

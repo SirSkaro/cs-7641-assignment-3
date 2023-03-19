@@ -41,8 +41,7 @@ def plot_3d(task: Task):
     plt.show()
 
 
-def graph_analysis(task: Task):
-    sample_set = data_utils.get_all_samples(task)
+def graph_analysis(sample_set: SampleSet):
     num_features = sample_set.samples.shape[1]
     all_kurtosis_scores = []
     components_to_try = np.arange(1, num_features + 1)
@@ -80,13 +79,33 @@ def graph_analysis(task: Task):
     return all_kurtosis_scores
 
 
-def transform(sample_set: SampleSet, num_components):
+def choose_num_components(sample_set: SampleSet):
+    num_features = sample_set.samples.shape[1]
+    all_kurtosis_scores = []
+    components_to_try = np.arange(1, num_features + 1)
+    for num_components in components_to_try:
+        kurtosis_scores = []
+        ica, transformed_data = transform(sample_set, num_components, True)
+        for component in range(num_components):
+            abs_kurtosis = np.abs(stats.kurtosis(transformed_data[:, component]))
+            kurtosis_scores.append(abs_kurtosis)
+        kurtosis_scores = np.pad(kurtosis_scores, (0, num_features - num_components))
+        all_kurtosis_scores.append(kurtosis_scores)
+
+    all_kurtosis_scores = np.array(all_kurtosis_scores)
+    all_kurtosis_scores[all_kurtosis_scores == 0] = np.nan
+    averages = np.nanmean(all_kurtosis_scores, axis=1)
+    return averages.argmax(), averages
+
+
+def transform(sample_set: SampleSet, num_components, random_seed=False):
+    random_state = None if random_seed else 0
     ica = FastICA(n_components=num_components,
                   algorithm='parallel',
                   whiten='unit-variance',
                   fun='logcosh',
                   max_iter=2000,
                   whiten_solver='eigh',
-                  random_state=0)
+                  random_state=random_state)
     ica.fit(sample_set.samples)
     return ica, ica.transform(sample_set.samples)

@@ -88,6 +88,8 @@ import scipy.stats as stats
 letter_kurtosis_scores = ica.graph_analysis(Task.LETTER_RECOGNITION)
 scribe_kurtosis_scores = ica.graph_analysis(Task.SCRIBE_RECOGNITION)
 
+sample_set = data_utils.get_all_samples(Task.LETTER_RECOGNITION)
+best, averages = ica.choose_num_components(sample_set)
 
 ------------------------ RP --------------------------
 import numpy as np

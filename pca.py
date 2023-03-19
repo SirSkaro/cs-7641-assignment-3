@@ -39,8 +39,7 @@ def plot_3d(task: Task):
     plt.show()
 
 
-def graph_analysis(task: Task):
-    sample_set = data_utils.get_all_samples(task)
+def graph_analysis(sample_set: SampleSet):
     num_features = sample_set.samples.shape[1]
     pca, _ = transform(sample_set, num_features)
 
