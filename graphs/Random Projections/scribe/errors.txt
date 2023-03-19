@@ -1,0 +1,18 @@
+Mean Errors:
+[3.34313308e+05 2.96797764e+05 2.62441581e+05 2.23292513e+05, 1.88526761e+05 1.46100918e+05 1.11167700e+05 7.58854282e+04, 3.71295033e+04 6.49358528e-22]
+
+PCA Errors:
+[1.88361642e+05 1.39146157e+05 1.03866157e+05 7.33346925e+04, 5.18221636e+04 3.36528226e+04 2.13163694e+04 9.56663037e+03, 2.84963553e+03 3.33336990e-25]
+
+Best RP errors:
+[(GaussianRandomProjection(n_components=1), 223839.56183080902), (GaussianRandomProjection(n_components=2), 200559.21417642772), (GaussianRandomProjection(n_components=3), 173758.57873071652), (GaussianRandomProjection(n_components=4), 129275.18966427336), (GaussianRandomProjection(n_components=5), 101445.82853337275), (GaussianRandomProjection(n_components=6), 75436.76352018565), (GaussianRandomProjection(n_components=7), 50555.81058801716), (GaussianRandomProjection(n_components=8), 31134.176864934554), (GaussianRandomProjection(n_components=9), 10629.99956600658), (GaussianRandomProjection(n_components=10), 3.8409730656598755e-25)]
+
+best - PCA
+[3.54779197e+04, 6.14130569e+04, 6.98924216e+04, 5.59404971e+04,
+       4.96236649e+04, 4.17839410e+04, 2.92394412e+04, 2.15675465e+04,
+       7.78036404e+03, 5.07603163e-26]
+	   
+mean - PCA
+[1.45951666e+05, 1.57651607e+05, 1.58575424e+05, 1.49957820e+05,
+       1.36704598e+05, 1.12448095e+05, 8.98513304e+04, 6.63187978e+04,
+       3.42798677e+04, 6.49025191e-22]

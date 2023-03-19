@@ -97,8 +97,8 @@ import rp
 from data_utils import Task
 import data_utils
 
-letter_errors = rp.graph_analysis(Task.LETTER_RECOGNITION, 5)
-scribe_errors = rp.graph_analysis(Task.SCRIBE_RECOGNITION, 5)
+letter_best, letter_mean_errors, letter_pca_errors = rp.graph_analysis(Task.LETTER_RECOGNITION, 5)
+scribe_best, scribe_mean_errors, scribe_pca_errors = rp.graph_analysis(Task.SCRIBE_RECOGNITION, 5)
 
 ------------------------ kPCA --------------------------
 import numpy as np
