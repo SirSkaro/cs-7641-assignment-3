@@ -99,11 +99,23 @@ def ica_em(task: Task):
 
 
 def rp_km(task: Task):
-    pass
+    original_samples = data_utils.get_all_samples(task)
+    config = get_config(task, rp, kmc)
+    model, transformed_samples = rp.transform(original_samples, config.target_dimensions)
+    transformed_sample_set = SampleSet(transformed_samples, original_samples.labels)
+
+    scores = kmc.graph_evaluations(transformed_sample_set, config.centroids_of_interest)
+    return scores
 
 
 def rp_em(task: Task):
-    pass
+    original_samples = data_utils.get_all_samples(task)
+    config = get_config(task, rp, em)
+    model, transformed_samples = rp.transform(original_samples, config.target_dimensions)
+    transformed_sample_set = SampleSet(transformed_samples, original_samples.labels)
+
+    scores = em.graph_evaluations(transformed_sample_set, config.centroids_of_interest)
+    return scores
 
 
 def kpca_km(task: Task):
