@@ -19,14 +19,15 @@ class MeanInit(Enum):
     KM_PP = 'k-means++'
 
 
-def graph_evaluations(task: Task, components_of_interest):
+def graph_evaluations(sample_set: SampleSet, components_of_interest):
     bic_scores = []
     homogeneity_scores = []
     completeness_scores = []
     v_measure_scores = []
 
     for components in components_of_interest:
-        scores = evaluate_clustering(task, components)
+        print(f'Evaluating {components} components...')
+        scores = evaluate_clustering(sample_set, components)
         bic_scores.append(scores[0])
         homogeneity_scores.append(scores[1])
         completeness_scores.append(scores[2])
@@ -51,8 +52,7 @@ def graph_evaluations(task: Task, components_of_interest):
     return bic_scores, homogeneity_scores, completeness_scores, v_measure_scores
 
 
-def evaluate_clustering(task: Task, component_count: int):
-    sample_set = data_utils.get_all_samples(task)
+def evaluate_clustering(sample_set: SampleSet, component_count: int):
     clustering = create_clustering(sample_set, component_count, MeanInit.KM_PP)
     predicted_labels = clustering.predict(sample_set.samples)
 
