@@ -15,12 +15,13 @@ from enum import Enum
 
 
 class TaskConfig:
-    def __init__(self, task, reduction, clustering, target_dimensions, centroids_of_interest):
+    def __init__(self, task, reduction, clustering, target_dimensions, centroids_of_interest, kernel=None):
         self.task = task
         self.reduction = reduction
         self.clustering = clustering
         self.target_dimensions = target_dimensions
         self.centroids_of_interest = centroids_of_interest
+        self.kernel = kernel
 
 
 LETTER_KS_OF_INTEREST = [2, 3, 4, 5, 6, 7, 8, 9, 10, 35, 50, 350, 450, 550, 700, 1000, 1500]
@@ -45,10 +46,10 @@ class Combo(Enum):
     LETTER_RP_EM = TaskConfig(Task.LETTER_RECOGNITION, rp, em, 11, LETTER_MEANS_OF_INTEREST)
     SCRIBE_RP_EM = TaskConfig(Task.SCRIBE_RECOGNITION, rp, em, 6, SCRIBE_MEANS_OF_INTEREST)
 
-    LETTER_KPCA_KMC = TaskConfig(Task.LETTER_RECOGNITION, k_pca, kmc, 6, LETTER_KS_OF_INTEREST)
-    SCRIBE_KPCA_KMC = TaskConfig(Task.SCRIBE_RECOGNITION, k_pca, kmc, 5, SCRIBE_KS_OF_INTEREST)
-    LETTER_KPCA_EM = TaskConfig(Task.LETTER_RECOGNITION, k_pca, em, 6, LETTER_MEANS_OF_INTEREST)
-    SCRIBE_KPCA_EM = TaskConfig(Task.SCRIBE_RECOGNITION, k_pca, em, 5, SCRIBE_MEANS_OF_INTEREST)
+    LETTER_KPCA_KMC = TaskConfig(Task.LETTER_RECOGNITION, k_pca, kmc, 6, LETTER_KS_OF_INTEREST, 'cosine')
+    SCRIBE_KPCA_KMC = TaskConfig(Task.SCRIBE_RECOGNITION, k_pca, kmc, 5, SCRIBE_KS_OF_INTEREST, 'rbf')
+    LETTER_KPCA_EM = TaskConfig(Task.LETTER_RECOGNITION, k_pca, em, 6, LETTER_MEANS_OF_INTEREST, 'cosine')
+    SCRIBE_KPCA_EM = TaskConfig(Task.SCRIBE_RECOGNITION, k_pca, em, 5, SCRIBE_MEANS_OF_INTEREST, 'rbf')
 
 
 def get_config(task: Task, reduction, clustering) -> TaskConfig:
@@ -119,11 +120,23 @@ def rp_em(task: Task):
 
 
 def kpca_km(task: Task):
-    pass
+    original_samples = data_utils.get_all_samples(task)
+    config = get_config(task, k_pca, kmc)
+    model, transformed_samples = k_pca.transform(original_samples, config.kernel, config.target_dimensions)
+    transformed_sample_set = SampleSet(transformed_samples, original_samples.labels)
+
+    scores = kmc.graph_evaluations(transformed_sample_set, config.centroids_of_interest)
+    return scores
 
 
 def kpca_em(task: Task):
-    pass
+    original_samples = data_utils.get_all_samples(task)
+    config = get_config(task, k_pca, em)
+    model, transformed_samples = k_pca.transform(original_samples, config.kernel, config.target_dimensions)
+    transformed_sample_set = SampleSet(transformed_samples, original_samples.labels)
+
+    scores = em.graph_evaluations(transformed_sample_set, config.centroids_of_interest)
+    return scores
 
 
 
