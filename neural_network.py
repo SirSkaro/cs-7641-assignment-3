@@ -1,5 +1,6 @@
 import data_utils
-from data_utils import Task
+from data_utils import Task, SampleSet
+import k_pca
 
 import tensorflow as tf
 import numpy as np
@@ -31,11 +32,9 @@ class Optimizer(Enum):
                                              ema_momentum=0.5, ema_overwrite_frequency=100)
 
 
-def learn(task: Task, shuffle: bool = False, hidden_layers: int = 3, percent_training: float = 0.9,
+def learn(training_set: SampleSet, test_set: SampleSet, hidden_layers: int = 3,
           activation: Activation = Activation.SCALED_EXPONENTIAL_LINEAR_UNIT,
-          optimizer: Optimizer = Optimizer.GRADIENT_DESCENT
-          ):
-    training_set, test_set = data_utils.get_training_and_test_sets(task, percent_training=percent_training, randomize=shuffle)
+          optimizer: Optimizer = Optimizer.GRADIENT_DESCENT):
     activation_function = activation.value[0]
     initializer = activation.value[1]
 
@@ -92,29 +91,57 @@ def create_learning_curve():
     ax[1].set_xlabel("Percentage Training Set")
     ax[1].set_ylabel("Training Time (in Seconds)")
 
+    task = Task.SCRIBE_RECOGNITION
+    original_data = data_utils.get_all_samples(task)
+    reduction_model, _ = k_pca.transform(original_data, 'rbf', 5)
     percentages = np.linspace(0, 1, 11)[1:-1]
-    for task, name, linestyle, hidden_layers in [(Task.SCRIBE_RECOGNITION, 'Scribe', 'dotted', 6),
-                                         (Task.LETTER_RECOGNITION, 'Letter', 'dashed', 6)]:
-        test_errors = []
-        train_errors = []
-        validation_errors = []
-        training_times = []
-        for percent_training in percentages:
-            start = time()
-            _, test_error, train_error, validation_error = learn(task, percent_training=percent_training, shuffle=True,
-                                               hidden_layers=hidden_layers, optimizer=Optimizer.ADA_DELTA,
-                                               activation=Activation.SCALED_EXPONENTIAL_LINEAR_UNIT)
-            end = time()
+    original_test_errors = []
+    original_train_errors = []
+    original_validation_errors = []
+    original_training_times = []
+    reduced_test_errors = []
+    reduced_train_errors = []
+    reduced_validation_errors = []
+    reduced_training_times = []
+    
+    for percent_training in percentages:
+        original_training, original_test = data_utils.get_training_and_test_sets(task, percent_training, randomize=True)
+        reduced_training = SampleSet(reduction_model.transform(original_training.samples), original_training.labels)
+        reduced_test = SampleSet(reduction_model.transform(original_test.samples), original_test.labels)
 
-            test_errors.append(test_error)
-            train_errors.append(train_error)
-            validation_errors.append(validation_error)
-            training_times.append(round(end - start, 2))
+        original_start = time()
+        _, test_error, train_error, validation_error = learn(original_training, original_test,
+                                                            hidden_layers=6, optimizer=Optimizer.ADA_DELTA,
+                                                            activation=Activation.SCALED_EXPONENTIAL_LINEAR_UNIT)
+        original_end = time()
 
-        ax[0].plot(percentages, test_errors, label=f'{name} Test Error', marker="o", drawstyle="steps-post", linestyle=linestyle)
-        ax[0].plot(percentages, train_errors, label=f'{name} Train Error', marker="o", drawstyle="steps-post", linestyle=linestyle)
-        ax[0].plot(percentages, validation_errors, label=f'{name} Validation Error', marker="o", drawstyle="steps-post", linestyle=linestyle)
-        ax[1].plot(percentages, training_times, label=f'{name} Classifier', marker="o", drawstyle="steps-post", linestyle=linestyle)
+        original_test_errors.append(test_error)
+        original_train_errors.append(train_error)
+        original_validation_errors.append(validation_error)
+        original_training_times.append(round(original_end - original_start, 2))
+
+        reduced_start = time()
+        _, test_error, train_error, validation_error = learn(reduced_training, reduced_test,
+                                                             hidden_layers=6, optimizer=Optimizer.ADA_DELTA,
+                                                             activation=Activation.SCALED_EXPONENTIAL_LINEAR_UNIT)
+        reduced_end = time()
+
+        reduced_test_errors.append(test_error)
+        reduced_train_errors.append(train_error)
+        reduced_validation_errors.append(validation_error)
+        reduced_training_times.append(round(reduced_end - reduced_start, 2))
+
+    ax[0].plot(percentages, original_test_errors, label=f'Original Test', marker="o", drawstyle="default", linestyle='dotted')
+    ax[0].plot(percentages, original_train_errors, label=f'Original Train', marker="o", drawstyle="default", linestyle='dotted')
+    ax[0].plot(percentages, original_validation_errors, label=f'Original Validation', marker="o", drawstyle="default", linestyle='dotted')
+    ax[1].plot(percentages, original_training_times, label=f'Original Classifier', marker="o", drawstyle="default", linestyle='dotted')
+
+    ax[0].plot(percentages, reduced_test_errors, label=f'Reduced Test', marker="s", drawstyle="default", linestyle='dashed')
+    ax[0].plot(percentages, reduced_train_errors, label=f'Reduced Train', marker="s", drawstyle="default", linestyle='dashed')
+    ax[0].plot(percentages, reduced_validation_errors, label=f'Reduced Validation', marker="s", drawstyle="default", linestyle='dashed')
+    ax[1].plot(percentages, reduced_training_times, label=f'Reduced Classifier', marker="s", drawstyle="default", linestyle='dashed')
 
     ax[0].legend(loc="best")
     ax[1].legend(loc="best")
+
+    plt.show()
