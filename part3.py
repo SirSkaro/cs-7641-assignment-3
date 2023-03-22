@@ -31,6 +31,11 @@ SCRIBE_MEANS_OF_INTEREST = [2, 3, 4, 5, 100, 300, 500, 550, 600, 750, 1000]
 
 
 class Combo(Enum):
+    LETTER_KMC = TaskConfig(Task.LETTER_RECOGNITION, None, kmc, None, LETTER_KS_OF_INTEREST)
+    SCRIBE_KMC = TaskConfig(Task.SCRIBE_RECOGNITION, None, kmc, None, SCRIBE_KS_OF_INTEREST)
+    LETTER_EM = TaskConfig(Task.LETTER_RECOGNITION, None, em, None, LETTER_MEANS_OF_INTEREST)
+    SCRIBE_EM = TaskConfig(Task.SCRIBE_RECOGNITION, None, em, None, SCRIBE_MEANS_OF_INTEREST)
+
     LETTER_PCA_KMC = TaskConfig(Task.LETTER_RECOGNITION, pca, kmc, 6, LETTER_KS_OF_INTEREST)
     SCRIBE_PCA_KMC = TaskConfig(Task.SCRIBE_RECOGNITION, pca, kmc, 4, SCRIBE_KS_OF_INTEREST)
     LETTER_PCA_EM = TaskConfig(Task.LETTER_RECOGNITION, pca, em, 6, LETTER_MEANS_OF_INTEREST)
@@ -57,6 +62,22 @@ def get_config(task: Task, reduction, clustering) -> TaskConfig:
         if config.task == task and config.reduction == reduction and config.clustering == clustering:
             return config
     raise ValueError('Config does not exist')
+
+
+def just_km(task: Task):
+    original_samples = data_utils.get_all_samples(task)
+    config = get_config(task, None, kmc)
+
+    scores = kmc.graph_evaluations(original_samples, config.centroids_of_interest)
+    return scores
+
+
+def just_em(task: Task):
+    original_samples = data_utils.get_all_samples(task)
+    config = get_config(task, None, em)
+
+    scores = em.graph_evaluations(original_samples, config.centroids_of_interest)
+    return scores
 
 
 def pca_km(task: Task):
