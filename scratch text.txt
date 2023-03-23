@@ -132,6 +132,8 @@ from data_utils import Task, SampleSet
 import k_pca
 import nn_part4 as nn
 
+#2 hidden layers w/ 30 nodes
+
 task = Task.LETTER_RECOGNITION
 original_samples = data_utils.get_all_samples(task)
 reduction_model, transformed_samples = k_pca.transform(original_samples, 'cosine', 6)
@@ -140,5 +142,5 @@ original_training, original_test = data_utils.get_training_and_test_sets(task, 0
 reduced_training = SampleSet(reduction_model.transform(original_training.samples), original_training.labels)
 reduced_test = SampleSet(reduction_model.transform(original_test.samples), original_test.labels)
 
-classifier, test_error, train_error, validation_error = nn.learn(reduced_training, reduced_test, hidden_layers=6, units_per_hidden_layer=7, optimizer=nn.Optimizer.ADA_DELTA)
+classifier, test_error, train_error, validation_error = nn.learn(reduced_training, reduced_test, hidden_layers=2, units_per_hidden_layer=30, optimizer=nn.Optimizer.ADA_DELTA)
 
