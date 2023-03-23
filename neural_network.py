@@ -32,7 +32,7 @@ class Optimizer(Enum):
                                              ema_momentum=0.5, ema_overwrite_frequency=100)
 
 
-def learn(training_set: SampleSet, test_set: SampleSet, hidden_layers: int = 3,
+def learn(training_set: SampleSet, test_set: SampleSet, hidden_layers: int = 3, units_per_hidden_layer=10,
           activation: Activation = Activation.SCALED_EXPONENTIAL_LINEAR_UNIT,
           optimizer: Optimizer = Optimizer.GRADIENT_DESCENT):
     activation_function = activation.value[0]
@@ -41,7 +41,8 @@ def learn(training_set: SampleSet, test_set: SampleSet, hidden_layers: int = 3,
     # Build layers
     layers = [tf.keras.layers.Input(shape=(training_set.num_features(),), name='input')]
     for layer_index in range(0, hidden_layers):
-        layers.append(tf.keras.layers.Dense(units=10, name=f'hidden{layer_index}', activation=activation_function, kernel_initializer=initializer))
+        layers.append(tf.keras.layers.Dense(units=units_per_hidden_layer, name=f'hidden{layer_index}',
+                                            activation=activation_function, kernel_initializer=initializer))
     layers.append(tf.keras.layers.Dense(units=training_set.num_classes(), name='output'))
 
     classifier = tf.keras.models.Sequential(layers)
@@ -91,9 +92,9 @@ def create_learning_curve():
     ax[1].set_xlabel("Percentage Training Set")
     ax[1].set_ylabel("Training Time (in Seconds)")
 
-    task = Task.SCRIBE_RECOGNITION
+    task = Task.LETTER_RECOGNITION
     original_data = data_utils.get_all_samples(task)
-    reduction_model, _ = k_pca.transform(original_data, 'rbf', 5)
+    reduction_model, _ = k_pca.transform(original_data, 'cosine', 6)
     percentages = np.linspace(0, 1, 11)[1:-1]
     original_test_errors = []
     original_train_errors = []
@@ -103,7 +104,7 @@ def create_learning_curve():
     reduced_train_errors = []
     reduced_validation_errors = []
     reduced_training_times = []
-    
+
     for percent_training in percentages:
         original_training, original_test = data_utils.get_training_and_test_sets(task, percent_training, randomize=True)
         reduced_training = SampleSet(reduction_model.transform(original_training.samples), original_training.labels)

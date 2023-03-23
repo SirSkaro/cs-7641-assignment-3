@@ -125,3 +125,20 @@ import rp
 import part3
 
 silhouette_scores, homogeneity_scores, completeness_scores, v_measure_scores = part3.pca_km(Task.LETTER_RECOGNITION)
+
+------------------------ part 4 --------------------------
+import data_utils
+from data_utils import Task, SampleSet
+import k_pca
+import neural_network as nn
+
+task = Task.LETTER_RECOGNITION
+original_samples = data_utils.get_all_samples(task)
+reduction_model, transformed_samples = k_pca.transform(original_samples, 'cosine', 6)
+
+original_training, original_test = data_utils.get_training_and_test_sets(task, 0.7, randomize=True)
+reduced_training = SampleSet(reduction_model.transform(original_training.samples), original_training.labels)
+reduced_test = SampleSet(reduction_model.transform(original_test.samples), original_test.labels)
+
+classifier, test_error, train_error, validation_error = nn.learn(reduced_training, reduced_test, hidden_layers=6, units_per_hidden_layer=7, optimizer=nn.Optimizer.ADA_DELTA)
+
