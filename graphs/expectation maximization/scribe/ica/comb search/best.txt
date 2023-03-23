@@ -1,0 +1,6 @@
+best # of clusters: 9
+
+bic = -13441.916188368856
+completeness = 0.10228224489481104
+homogeneity = 0.05799849518799459
+v_measure = 0.07402282127327624

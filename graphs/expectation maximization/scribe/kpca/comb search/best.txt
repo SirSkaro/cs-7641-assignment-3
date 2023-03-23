@@ -1,0 +1,6 @@
+best number of clusters: 80
+
+bic = -116460.46144436173
+completeness = 0.12207537393523069
+homogeneity = 0.28457734973352034
+v-measure = 0.17085775827983704
