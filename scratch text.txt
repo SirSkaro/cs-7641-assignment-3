@@ -130,7 +130,7 @@ silhouette_scores, homogeneity_scores, completeness_scores, v_measure_scores = p
 import data_utils
 from data_utils import Task, SampleSet
 import k_pca
-import neural_network as nn
+import nn_part4 as nn
 
 task = Task.LETTER_RECOGNITION
 original_samples = data_utils.get_all_samples(task)
