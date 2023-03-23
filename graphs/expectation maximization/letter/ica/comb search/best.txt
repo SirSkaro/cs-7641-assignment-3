@@ -1,0 +1,6 @@
+best number of components: 117
+
+bic = 357598.3423512919
+completeness = 0.5249267252658613
+homogeneity = 0.745688259514122
+v-score = 0.6161295133847758
