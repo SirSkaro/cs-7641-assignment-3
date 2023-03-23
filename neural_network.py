@@ -111,7 +111,7 @@ def create_learning_curve():
         reduced_test = SampleSet(reduction_model.transform(original_test.samples), original_test.labels)
 
         original_start = time()
-        _, test_error, train_error, validation_error = learn(original_training, original_test,
+        _, test_error, train_error, validation_error = learn(original_training, original_test, units_per_hidden_layer=10,
                                                             hidden_layers=6, optimizer=Optimizer.ADA_DELTA,
                                                             activation=Activation.SCALED_EXPONENTIAL_LINEAR_UNIT)
         original_end = time()
@@ -122,8 +122,8 @@ def create_learning_curve():
         original_training_times.append(round(original_end - original_start, 2))
 
         reduced_start = time()
-        _, test_error, train_error, validation_error = learn(reduced_training, reduced_test,
-                                                             hidden_layers=6, optimizer=Optimizer.ADA_DELTA,
+        _, test_error, train_error, validation_error = learn(reduced_training, reduced_test, units_per_hidden_layer=30,
+                                                             hidden_layers=2, optimizer=Optimizer.ADA_DELTA,
                                                              activation=Activation.SCALED_EXPONENTIAL_LINEAR_UNIT)
         reduced_end = time()
 
