@@ -129,7 +129,7 @@ def find_k(sample_set: SampleSet, init: MeanInit, trials_per_k: int, ks_to_try: 
     return (best_k, clustering, avg_score), all_average_scores
 
 
-def create_clustering(sample_set: SampleSet, k: int, init: MeanInit, trials: int = 1):
+def create_clustering(sample_set: SampleSet, k: int, init: MeanInit = MeanInit.KM_PP, trials: int = 1):
     clusters = KMeans(n_clusters=k,
                       init=init.value,
                       n_init=trials,

@@ -1,13 +1,13 @@
 import data_utils
 from data_utils import Task, SampleSet
-import kmc
-import em
+import kmc, em
 
 import tensorflow as tf
 import numpy as np
 from enum import Enum
 import matplotlib.pyplot as plt
 from time import time
+from sklearn.base import BaseEstimator
 
 ### Docs used:
 # https://scikit-learn.org/stable/modules/neural_networks_supervised.html
@@ -35,7 +35,7 @@ class Optimizer(Enum):
 
 def learn(training_set: SampleSet, test_set: SampleSet, hidden_layers: int = 3, units_per_hidden_layer=10,
           activation: Activation = Activation.SCALED_EXPONENTIAL_LINEAR_UNIT,
-          optimizer: Optimizer = Optimizer.GRADIENT_DESCENT):
+          optimizer: Optimizer = Optimizer.ADA_DELTA):
     activation_function = activation.value[0]
     initializer = activation.value[1]
 
@@ -82,6 +82,17 @@ def learn(training_set: SampleSet, test_set: SampleSet, hidden_layers: int = 3, 
     return classifier, test_error, train_error, validation_error
 
 
+def add_cluster_features(cluster_models, training_set: SampleSet, test_set: SampleSet):
+    for cluster_model in cluster_models:
+        add_feature(training_set, cluster_model)
+        add_feature(test_set, cluster_model)
+
+
+def add_feature(sample_set: SampleSet, cluster_model):
+    clusters = cluster_model.predict(sample_set.samples)
+    sample_set.samples = np.column_stack((sample_set.samples, clusters))
+
+
 def create_learning_curve():
     fig, ax = plt.subplots(1, 2)
 
@@ -95,24 +106,23 @@ def create_learning_curve():
 
     task = Task.LETTER_RECOGNITION
     original_data = data_utils.get_all_samples(task)
-    reduction_model, _ = k_pca.transform(original_data, 'cosine', 6)
+    cluster_models = [kmc.create_clustering(original_data, 450), em.create_clustering(original_data, 140)]
     percentages = np.linspace(0, 1, 11)[1:-1]
     original_test_errors = []
     original_train_errors = []
     original_validation_errors = []
     original_training_times = []
-    reduced_test_errors = []
-    reduced_train_errors = []
-    reduced_validation_errors = []
-    reduced_training_times = []
+    augmented_test_errors = []
+    augmented_train_errors = []
+    augmented_validation_errors = []
+    augmented_training_times = []
 
     for percent_training in percentages:
-        original_training, original_test = data_utils.get_training_and_test_sets(task, percent_training, randomize=True)
-        reduced_training = SampleSet(reduction_model.transform(original_training.samples), original_training.labels)
-        reduced_test = SampleSet(reduction_model.transform(original_test.samples), original_test.labels)
+        # Train network on original data
+        training_set, test_set = data_utils.get_training_and_test_sets(task, percent_training, randomize=True)
 
         original_start = time()
-        _, test_error, train_error, validation_error = learn(original_training, original_test, units_per_hidden_layer=10,
+        _, test_error, train_error, validation_error = learn(training_set, test_set, units_per_hidden_layer=10,
                                                             hidden_layers=6, optimizer=Optimizer.ADA_DELTA,
                                                             activation=Activation.SCALED_EXPONENTIAL_LINEAR_UNIT)
         original_end = time()
@@ -122,26 +132,29 @@ def create_learning_curve():
         original_validation_errors.append(validation_error)
         original_training_times.append(round(original_end - original_start, 2))
 
-        reduced_start = time()
-        _, test_error, train_error, validation_error = learn(reduced_training, reduced_test, units_per_hidden_layer=30,
-                                                             hidden_layers=2, optimizer=Optimizer.ADA_DELTA,
-                                                             activation=Activation.SCALED_EXPONENTIAL_LINEAR_UNIT)
-        reduced_end = time()
+        # Train network on augmented data
+        add_cluster_features(cluster_models, training_set, test_set)
 
-        reduced_test_errors.append(test_error)
-        reduced_train_errors.append(train_error)
-        reduced_validation_errors.append(validation_error)
-        reduced_training_times.append(round(reduced_end - reduced_start, 2))
+        augmented_start = time()
+        _, test_error, train_error, validation_error = learn(training_set, test_set, units_per_hidden_layer=10,
+                                                             hidden_layers=6, optimizer=Optimizer.ADA_DELTA,
+                                                             activation=Activation.SCALED_EXPONENTIAL_LINEAR_UNIT)
+        augmented_end = time()
+
+        augmented_test_errors.append(test_error)
+        augmented_train_errors.append(train_error)
+        augmented_validation_errors.append(validation_error)
+        augmented_training_times.append(round(augmented_end - augmented_start, 2))
 
     ax[0].plot(percentages, original_test_errors, label=f'Original Test', marker="o", drawstyle="default", linestyle='dotted')
     ax[0].plot(percentages, original_train_errors, label=f'Original Train', marker="o", drawstyle="default", linestyle='dotted')
     ax[0].plot(percentages, original_validation_errors, label=f'Original Validation', marker="o", drawstyle="default", linestyle='dotted')
     ax[1].plot(percentages, original_training_times, label=f'Original Classifier', marker="o", drawstyle="default", linestyle='dotted')
 
-    ax[0].plot(percentages, reduced_test_errors, label=f'Reduced Test', marker="s", drawstyle="default", linestyle='dashed')
-    ax[0].plot(percentages, reduced_train_errors, label=f'Reduced Train', marker="s", drawstyle="default", linestyle='dashed')
-    ax[0].plot(percentages, reduced_validation_errors, label=f'Reduced Validation', marker="s", drawstyle="default", linestyle='dashed')
-    ax[1].plot(percentages, reduced_training_times, label=f'Reduced Classifier', marker="s", drawstyle="default", linestyle='dashed')
+    ax[0].plot(percentages, augmented_test_errors, label=f'w/ Clusters Test', marker="s", drawstyle="default", linestyle='dashed')
+    ax[0].plot(percentages, augmented_train_errors, label=f'w/ Clusters Train', marker="s", drawstyle="default", linestyle='dashed')
+    ax[0].plot(percentages, augmented_validation_errors, label=f'w/ Clusters Validation', marker="s", drawstyle="default", linestyle='dashed')
+    ax[1].plot(percentages, augmented_training_times, label=f'w/ Cluster Classifier', marker="s", drawstyle="default", linestyle='dashed')
 
     ax[0].legend(loc="best")
     ax[1].legend(loc="best")
@@ -149,4 +162,4 @@ def create_learning_curve():
     plt.show()
 
     return (original_test_errors, original_train_errors, original_validation_errors, original_training_times),\
-           (reduced_test_errors, reduced_train_errors, reduced_validation_errors, reduced_training_times)
+           (augmented_test_errors, augmented_train_errors, augmented_validation_errors, augmented_training_times)

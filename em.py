@@ -103,7 +103,7 @@ def find_best_cluster(sample_set: SampleSet, init: MeanInit, trials_per_k: int, 
     return (best_k, clustering, score), all_scores
 
 
-def create_clustering(sample_set: SampleSet, k: int, init: MeanInit, trials: int = 1):
+def create_clustering(sample_set: SampleSet, k: int, init: MeanInit = MeanInit.KM_PP, trials: int = 1):
     clusters = GaussianMixture(n_components=k,
                                random_state=0,
                                covariance_type='full',

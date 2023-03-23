@@ -1,0 +1,48 @@
+Letter
+- In general, EM has better ground-truth evaluation than KMC
+- None of the reduction helped improve the V-Score above the vanilla EM V-Score
+
+Letter KMC
+- For PCA, KPCA and ICA, maximum Silho score looks to be at a smaller cluster size. Need to explore
+
+Letter EM
+- Monotonic decrease in V-Score after ~225 for vanilla and all transformations. True for BIC. Should explore that area
+- KPCA significantly had better BIC scores
+- ICA had best V-Measure
+
+
+
+Scribe
+- Vinilla EM did the best out of all in terms of V-Score
+- 
+
+Scribe KMC
+- Venilla and KPCA have much better homogeniety
+- All v-Scores are comparably the same
+- KPCA has bad silhouette scores
+- KPCA doesn't think 2 clusters is a near perfect socre, which is unique
+- ICA has best average silhouette scores
+
+
+
+Scribe EM
+- KPCA has best BIC score (worse V-Score than vanilla) Need to explore.
+- ICA has second best BIC score with only 1 feature, but worst V-Score. Need explore
+
+
+
+from sklearn import metrics
+import matplotlib.pyplot as plt
+import numpy as np
+
+from data_utils import Task, SampleSet
+import data_utils
+import em
+import ica
+import kmc
+import k_pca
+import pca
+import rp
+from part3 import get_config
+
+task = Task.SCRIBE_RECOGNITION

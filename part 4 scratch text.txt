@@ -1,0 +1,58 @@
+70% 6 hidden layers w/ 10 nodes
+
+test_error = {float} 0.27549999952316284
+validation_error = {float} 0.28607141971588135
+train_error = {float} 0.24357140064239502
+
+
+70% 8 hidden layers w/ 10 nodes
+test_error = {float} 0.2668333053588867
+validation_error = {float} 0.2660714387893677
+train_error = {float} 0.23142856359481812
+
+
+70% 4 hidden layers w/ 20 nodes
+test_error = {float} 0.22466665506362915
+validation_error = {float} 0.220714271068573
+train_error = {float} 0.17642855644226074
+
+70% 4 hidden layers w/  nodes 15
+test_error = {float} 0.24316668510437012
+train_error = {float} 0.2222321629524231
+validation_error = {float} 0.23500001430511475
+
+70% 4 hidden layers w/  nodes 17
+test_error = {float} 0.24400001764297485
+train_error = {float} 0.20267856121063232
+validation_error = {float} 0.23678570985794067
+
+70% 5 hidden layers w/ 10 nodes
+test_error = {float} 0.28450000286102295
+train_error = {float} 0.2674106955528259
+validation_error = {float} 0.27571427822113037
+
+70% 2 hidden layers w/ 40 nodes
+test_error = {float} 0.21116667985916138
+train_error = {float} 0.1552678346633911
+validation_error = {float} 0.20749998092651367
+
+70% 2 hidden layers w/ 25 nodes
+test_error = {float} 0.23633331060409546
+train_error = {float} 0.20098215341567993
+validation_error = {float} 0.2353571653366089
+
+70% 2 hidden layers w/ 32 nodes
+test_error = {float} 0.22566664218902588
+train_error = {float} 0.17723214626312256
+validation_error = {float} 0.2124999761581421
+
+70% 2 hidden layers w/ 35 nodes
+test_error = {float} 0.21283334493637085
+train_error = {float} 0.16410714387893677
+validation_error = {float} 0.21321427822113037
+
+
+* 70% 2 hidden layers w/ 30 nodes
+test_error = {float} 0.22033333778381348
+train_error = {float} 0.18098217248916626
+validation_error = {float} 0.21142858266830444
