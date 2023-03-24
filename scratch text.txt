@@ -22,10 +22,10 @@ import data_utils
 (k, clustering, avg_score, score), all_avg_scores = kmc.find_k(Task.LETTER_RECOGNITION, kmc.MeanInit.KM_PP, trials_per_k=2)
 
 letter_sample_set = data_utils.get_all_samples(Task.LETTER_RECOGNITION)
-letter_clusters, letter_analysis = kmc.cluster(letter_sample_set, k=26, init=kmc.MeanInit.KM_PP, trials=5)
+letter_clusters = kmc.cluster(letter_sample_set, k=26, init=kmc.MeanInit.KM_PP, trials=5)
 
 scribe_sample_set = data_utils.get_all_samples(Task.SCRIBE_RECOGNITION)
-scribe_clusters, scribe_analysis = kmc.cluster(scribe_sample_set, k=13, init=kmc.MeanInit.KM_PP, trials=5)
+scribe_clusters = kmc.cluster(scribe_sample_set, k=13, init=kmc.MeanInit.KM_PP, trials=5)
 
 silhouette, homogeneity, completeness, v_measure = kmc.evaluate_clustering(Task.LETTER_RECOGNITION, 450)
 
