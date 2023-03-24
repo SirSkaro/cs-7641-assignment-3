@@ -1,0 +1,27 @@
+70% 6 hidden layers w/ 10 nodes
+test_error = {float} 0.2916666865348816
+validation_error = {float} 0.2842857241630554
+train_error = {float} 0.2582142949104309
+
+70% 6 hidden layers w/ 15 nodes
+test_error = {float} 0.187666654586792
+train_error = {float} 0.1255357265472412
+validation_error = {float} 0.1946428418159485
+
+
+70% 3 hidden layers w/ 40 nodes
+test_error = {float} 0.09733331203460693
+train_error = {float} 0.0058928728103637695
+validation_error = {float} 0.10250002145767212
+
+
+70% 3 hidden layers w/ 30 nodes
+test_error = {float} 0.12599998712539673
+train_error = {float} 0.0354464054107666
+validation_error = {float} 0.12928569316864014
+
+
+70% 3 hidden layers w/ 35 nodes
+test_error = {float} 0.11449998617172241
+train_error = {float} 0.01276785135269165
+validation_error = {float} 0.10750001668930054

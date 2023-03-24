@@ -83,14 +83,14 @@ def learn(training_set: SampleSet, test_set: SampleSet, hidden_layers: int = 3, 
 
 
 def add_cluster_features(cluster_models, training_set: SampleSet, test_set: SampleSet):
-    for cluster_model in cluster_models:
-        add_feature(training_set, cluster_model)
-        add_feature(test_set, cluster_model)
+    add_features(training_set, cluster_models)
+    add_features(test_set, cluster_models)
 
 
-def add_feature(sample_set: SampleSet, cluster_model):
-    clusters = cluster_model.predict(sample_set.samples)
-    sample_set.samples = np.column_stack((sample_set.samples, clusters))
+def add_features(sample_set: SampleSet, cluster_models):
+    features_to_add = [model.predict(sample_set.samples) for model in cluster_models]
+    for feature in features_to_add:
+        sample_set.samples = np.column_stack((sample_set.samples, feature))
 
 
 def create_learning_curve():
@@ -136,8 +136,8 @@ def create_learning_curve():
         add_cluster_features(cluster_models, training_set, test_set)
 
         augmented_start = time()
-        _, test_error, train_error, validation_error = learn(training_set, test_set, units_per_hidden_layer=10,
-                                                             hidden_layers=6, optimizer=Optimizer.ADA_DELTA,
+        _, test_error, train_error, validation_error = learn(training_set, test_set, units_per_hidden_layer=35,
+                                                             hidden_layers=3, optimizer=Optimizer.ADA_DELTA,
                                                              activation=Activation.SCALED_EXPONENTIAL_LINEAR_UNIT)
         augmented_end = time()
 

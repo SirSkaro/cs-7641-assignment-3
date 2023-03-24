@@ -144,3 +144,22 @@ reduced_test = SampleSet(reduction_model.transform(original_test.samples), origi
 
 classifier, test_error, train_error, validation_error = nn.learn(reduced_training, reduced_test, hidden_layers=2, units_per_hidden_layer=30, optimizer=nn.Optimizer.ADA_DELTA)
 
+
+
+------------------------ part 5 --------------------------
+import data_utils
+from data_utils import Task, SampleSet
+import em
+import kmc
+import nn_part5 as nn
+
+task = Task.LETTER_RECOGNITION
+original_data = data_utils.get_all_samples(task)
+print('Creating cluster models...')
+cluster_models = [kmc.create_clustering(original_data, 450), em.create_clustering(original_data, 140)]
+print('done')
+
+training_set, test_set = data_utils.get_training_and_test_sets(task, 0.7, randomize=True)
+nn.add_cluster_features(cluster_models, training_set, test_set)
+
+classifier, test_error, train_error, validation_error = nn.learn(training_set, test_set, hidden_layers=6, units_per_hidden_layer=10, optimizer=nn.Optimizer.ADA_DELTA)
